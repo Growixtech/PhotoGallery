@@ -1,0 +1,14 @@
+#alertBtn {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#alertBtn:hover {
+    background-color: #2980b9;
+}
