@@ -2,11 +2,11 @@
 
 **Project Title:** Photo Gallery Web Application
 
-**Project Assigned To:** Interns at HackFusion
+**Project Assigned To:** Interns at HackFusion : Amit 
 
-**Prepared By:** [Your Name], COO - HackFusion
+**Prepared By:** Tarush, COO - HackFusion
 
-**Date:** [Insert Date]
+**Date:** 11/06/2025
 
 ---
 
