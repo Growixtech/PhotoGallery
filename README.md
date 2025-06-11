@@ -121,7 +121,7 @@ API URL: https://api.unsplash.com/photos/?client_id=YOUR_ACCESS_KEY
 
 ---
 
-For any queries, please contact: [Your Email] | Slack: #hackfusion-interns
+For any queries, please contact: thegrowixtech@gmail.com | Slack: #hackfusion-interns
 
 **End of Document**
 
