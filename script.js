@@ -1,15 +1,15 @@
-// Enhanced Configuration and Constants
+// Enhanced Configuration and Constants - Central configuration for the application
 const CONFIG = {
-    API_KEY: 'CLiqy8UK-ptDrv1z7MuC51MKMOlP_DSs3DToSf-GYGY',
-    BASE_URL: 'https://api.unsplash.com',
-    DEMO_MODE: true,
-    IMAGES_PER_PAGE: 30,
-    SEARCH_DELAY: 500,
-    ANIMATION_DELAY: 100,
-    MAX_HISTORY_ITEMS: 50
+    API_KEY: 'CLiqy8UK-ptDrv1z7MuC51MKMOlP_DSs3DToSf-GYGY', // Unsplash API key
+    BASE_URL: 'https://api.unsplash.com', // Unsplash API base URL
+    DEMO_MODE: true, // Enable demo mode for development
+    IMAGES_PER_PAGE: 30, // Number of images to load per page
+    SEARCH_DELAY: 500, // Delay for search input debouncing
+    ANIMATION_DELAY: 100, // Animation delay between elements
+    MAX_HISTORY_ITEMS: 50 // Maximum items in search history
 };
 
-// Demo Images with Enhanced Data
+// Demo Images with Enhanced Data - Sample data for demo mode
 const DEMO_IMAGES = [
     {
         id: 'demo1',
@@ -109,14 +109,16 @@ const DEMO_IMAGES = [
     }
 ];
 
-// Utility Functions
+// Utility Functions - Helper functions for common operations
 class Utils {
+    // Format numbers with K/M suffixes
     static formatNumber(num) {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
         return num.toString();
     }
 
+    // Format date strings to readable format
     static formatDate(dateString) {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
@@ -126,6 +128,7 @@ class Utils {
         });
     }
 
+    // Format date as time ago (e.g., "2h ago")
     static formatTimeAgo(dateString) {
         const date = new Date(dateString);
         const now = new Date();
@@ -138,6 +141,7 @@ class Utils {
         return Utils.formatDate(dateString);
     }
 
+    // Debounce function to limit function calls
     static debounce(func, wait) {
         let timeout;
         return (...args) => {
@@ -146,6 +150,7 @@ class Utils {
         };
     }
 
+    // Animate number counting effect
     static animateValue(element, start, end, duration, formatter = (v) => v) {
         const startTime = performance.now();
         const update = (currentTime) => {
@@ -160,28 +165,38 @@ class Utils {
         };
         requestAnimationFrame(update);
     }
+
+    // Generate unique ID
+    static generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
 }
 
-// Enhanced Stats Manager
+// Enhanced Stats Manager - Tracks and displays application statistics
 class StatsManager {
     constructor() {
         this.stats = this.loadStats();
         this.updateDisplay();
     }
 
+    // Load statistics from localStorage
     loadStats() {
         return JSON.parse(localStorage.getItem('galleriaStats')) || {
             totalImages: 0,
             totalSearches: 0,
             totalDownloads: 0,
+            totalAlbums: 0,
+            totalFavorites: 0,
             lastActivity: null
         };
     }
 
+    // Save statistics to localStorage
     saveStats() {
         localStorage.setItem('galleriaStats', JSON.stringify(this.stats));
     }
 
+    // Increment image counter
     incrementImages(count = 1) {
         this.stats.totalImages += count;
         this.stats.lastActivity = new Date().toISOString();
@@ -189,6 +204,7 @@ class StatsManager {
         this.updateDisplay();
     }
 
+    // Increment search counter
     incrementSearches() {
         this.stats.totalSearches++;
         this.stats.lastActivity = new Date().toISOString();
@@ -196,16 +212,41 @@ class StatsManager {
         this.updateDisplay();
     }
 
+    // Increment download counter
     incrementDownloads() {
         this.stats.totalDownloads++;
         this.saveStats();
         this.updateDisplay();
     }
 
+    // Increment album counter
+    incrementAlbums() {
+        this.stats.totalAlbums++;
+        this.saveStats();
+        this.updateDisplay();
+    }
+
+    // Decrement album counter
+    decrementAlbums() {
+        this.stats.totalAlbums = Math.max(0, this.stats.totalAlbums - 1);
+        this.saveStats();
+        this.updateDisplay();
+    }
+
+    // Increment favorites counter
+    incrementFavorites() {
+        this.stats.totalFavorites++;
+        this.saveStats();
+        this.updateDisplay();
+    }
+
+    // Update display elements with current statistics
     updateDisplay() {
         const totalImages = document.getElementById('totalImages');
         const totalSearches = document.getElementById('totalSearches');
         const totalDownloads = document.getElementById('totalDownloads');
+        const totalAlbums = document.getElementById('totalAlbums');
+        const totalFavorites = document.getElementById('totalFavorites');
         const lastActivity = document.getElementById('lastActivity');
 
         if (totalImages) {
@@ -217,6 +258,12 @@ class StatsManager {
         if (totalDownloads) {
             Utils.animateValue(totalDownloads, 0, this.stats.totalDownloads, 1000, Utils.formatNumber);
         }
+        if (totalAlbums) {
+            Utils.animateValue(totalAlbums, 0, this.stats.totalAlbums, 1000, Utils.formatNumber);
+        }
+        if (totalFavorites) {
+            Utils.animateValue(totalFavorites, 0, this.stats.totalFavorites, 1000, Utils.formatNumber);
+        }
         if (lastActivity) {
             lastActivity.textContent = this.stats.lastActivity ? 
                 Utils.formatTimeAgo(this.stats.lastActivity) : 'Never';
@@ -224,11 +271,12 @@ class StatsManager {
     }
 }
 
-// Enhanced Gallery Class
+// Enhanced Gallery Class - Main gallery functionality
 class Galleria {
     constructor() {
         this.grid = document.getElementById('adaptiveGrid');
         this.searchInput = document.getElementById('searchInput');
+        this.searchBtn = document.getElementById('searchBtn');
         this.clearBtn = document.getElementById('clearSearch');
         this.loading = document.getElementById('loading');
         this.currentItems = [];
@@ -240,10 +288,12 @@ class Galleria {
         this.sortBy = 'relevance';
         this.intersectionObserver = null;
         this.stats = new StatsManager();
+        this.selectedAlbum = null;
         
         this.init();
     }
 
+    // Initialize the gallery
     async init() {
         this.setupIntersectionObserver();
         await this.loadImages();
@@ -252,6 +302,7 @@ class Galleria {
         this.setupSearchSuggestions();
     }
 
+    // Setup intersection observer for lazy loading animations
     setupIntersectionObserver() {
         this.intersectionObserver = new IntersectionObserver(
             (entries) => {
@@ -268,6 +319,7 @@ class Galleria {
         );
     }
 
+    // Load images from API or demo data
     async loadImages() {
         if (this.isLoading) return;
         
@@ -277,6 +329,7 @@ class Galleria {
         try {
             let data;
             if (CONFIG.DEMO_MODE || !CONFIG.API_KEY || CONFIG.API_KEY === 'YOUR_UNSPLASH_ACCESS_KEY') {
+                // Simulate API delay
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 data = this.query ? 
                     DEMO_IMAGES.filter(img => 
@@ -284,6 +337,7 @@ class Galleria {
                         img.alt_description.toLowerCase().includes(this.query.toLowerCase())
                     ) : DEMO_IMAGES;
             } else {
+                // Real API call
                 const url = this.query ? 
                     `${CONFIG.BASE_URL}/search/photos?query=${this.query}&page=${this.page}&per_page=${CONFIG.IMAGES_PER_PAGE}&order_by=${this.sortBy}&client_id=${CONFIG.API_KEY}` :
                     `${CONFIG.BASE_URL}/photos?page=${this.page}&per_page=${CONFIG.IMAGES_PER_PAGE}&order_by=${this.sortBy}&client_id=${CONFIG.API_KEY}`;
@@ -305,6 +359,7 @@ class Galleria {
         }
     }
 
+    // Render gallery grid with images
     renderGallery() {
         this.grid.innerHTML = '';
         this.grid.className = `adaptive-grid ${this.viewMode}-view`;
@@ -316,6 +371,7 @@ class Galleria {
         });
     }
 
+    // Create individual gallery item HTML
     createGalleryItem(item, index) {
         const div = document.createElement('div');
         div.className = 'gallery-item scroll-animate glitter-border';
@@ -345,19 +401,23 @@ class Galleria {
                     <span><i class="fas fa-download"></i> ${Utils.formatNumber(item.downloads || 0)}</span>
                 </div>
                 <div class="overlay-actions">
-                    <button class="overlay-btn" onclick="galleria.showLightbox(${index})">
+                    <button class="overlay-btn" onclick="galleria.showLightbox(${index})" title="View Fullscreen">
                         <i class="fas fa-expand"></i>
                     </button>
-                    <button class="overlay-btn" onclick="galleria.quickSave(${index})">
+                    <button class="overlay-btn" onclick="galleria.quickSave(${index})" title="Save to Private">
                         <i class="fas fa-heart"></i>
                     </button>
-                    <button class="overlay-btn" onclick="galleria.quickShare(${index})">
+                    <button class="overlay-btn" onclick="galleria.quickShare(${index})" title="Share">
                         <i class="fas fa-share"></i>
+                    </button>
+                    <button class="overlay-btn" onclick="galleria.addToAlbumQuick(${index})" title="Add to Album">
+                        <i class="fas fa-folder-plus"></i>
                     </button>
                 </div>
             </div>
         `;
 
+        // Click event for lightbox
         div.addEventListener('click', (e) => {
             if (e.target.tagName === 'IMG' && !e.target.closest('.overlay-actions')) {
                 this.showLightbox(index);
@@ -367,6 +427,7 @@ class Galleria {
         return div;
     }
 
+    // Setup event listeners for gallery controls
     setupEventListeners() {
         // Enhanced search with debounce
         this.searchInput.addEventListener('input', Utils.debounce(async (e) => {
@@ -378,6 +439,17 @@ class Galleria {
             this.page = 1;
             await this.loadImages();
         }, CONFIG.SEARCH_DELAY));
+
+        // Search button functionality
+        this.searchBtn.addEventListener('click', async () => {
+            this.query = this.searchInput.value.trim();
+            if (this.query) {
+                this.stats.incrementSearches();
+                searchHistory.addSearch(this.query);
+            }
+            this.page = 1;
+            await this.loadImages();
+        });
 
         // Enhanced clear button
         this.clearBtn.addEventListener('click', async () => {
@@ -397,11 +469,23 @@ class Galleria {
             this.setViewMode('list');
         });
 
-        // Sort options
-        document.getElementById('sortBy')?.addEventListener('change', async (e) => {
-            this.sortBy = e.target.value;
-            this.page = 1;
-            await this.loadImages();
+        // Enhanced sort options with modern buttons
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const sortValue = e.currentTarget.dataset.sort;
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                this.sortBy = sortValue;
+                this.page = 1;
+                await this.loadImages();
+            });
+        });
+
+        // Enter key for search
+        this.searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.searchBtn.click();
+            }
         });
 
         // Keyboard shortcuts
@@ -421,6 +505,7 @@ class Galleria {
         });
     }
 
+    // Setup search suggestions functionality
     setupSearchSuggestions() {
         const suggestions = [
             'nature', 'landscape', 'sunset', 'ocean', 'mountains', 'forest',
@@ -443,6 +528,7 @@ class Galleria {
         });
     }
 
+    // Show search suggestions
     showSuggestions(suggestions) {
         const container = document.getElementById('searchSuggestions');
         container.innerHTML = suggestions.map(suggestion => `
@@ -454,12 +540,14 @@ class Galleria {
         container.style.display = 'block';
     }
 
+    // Select a search suggestion
     selectSuggestion(suggestion) {
         this.searchInput.value = suggestion;
-        this.searchInput.dispatchEvent(new Event('input'));
+        this.searchBtn.click();
         document.getElementById('searchSuggestions').style.display = 'none';
     }
 
+    // Set view mode (grid/list)
     setViewMode(mode) {
         this.viewMode = mode;
         document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
@@ -467,6 +555,7 @@ class Galleria {
         this.renderGallery();
     }
 
+    // Show fullscreen lightbox
     showLightbox(index) {
         this.currentIndex = index;
         const item = this.currentItems[index];
@@ -479,10 +568,10 @@ class Galleria {
         const imageLikes = document.getElementById('imageLikes');
         const imageViews = document.getElementById('imageViews');
         const imageDate = document.getElementById('imageDate');
-        const unsplashLink = document.getElementById('unsplashLink');
         const downloadBtn = document.getElementById('downloadBtn');
         const addToPrivateBtn = document.getElementById('addToPrivateBtn');
         const shareBtn = document.getElementById('shareBtn');
+        const addToAlbumLightboxBtn = document.getElementById('addToAlbumLightboxBtn');
 
         // Show loading
         const imageLoader = document.getElementById('imageLoader');
@@ -504,12 +593,12 @@ class Galleria {
         imageLikes.innerHTML = `<i class="fas fa-heart"></i> ${Utils.formatNumber(item.likes || 0)}`;
         imageViews.innerHTML = `<i class="fas fa-eye"></i> ${Utils.formatNumber(item.views || 0)}`;
         imageDate.innerHTML = `<i class="fas fa-calendar"></i> ${Utils.formatDate(item.created_at)}`;
-        unsplashLink.href = item.links.html;
 
         // Setup action buttons
         downloadBtn.onclick = () => this.downloadImage(item);
         shareBtn.onclick = () => shareManager.showShareModal(item);
         addToPrivateBtn.onclick = () => this.addToPrivate(item);
+        addToAlbumLightboxBtn.onclick = () => albumManager.showAddToAlbumModal(item);
 
         // Setup navigation
         this.setupLightboxNavigation();
@@ -518,6 +607,7 @@ class Galleria {
         document.body.style.overflow = 'hidden';
     }
 
+    // Setup lightbox navigation
     setupLightboxNavigation() {
         const prevBtn = document.getElementById('prevImage');
         const nextBtn = document.getElementById('nextImage');
@@ -565,6 +655,7 @@ class Galleria {
         });
     }
 
+    // Navigate between images in lightbox
     navigateImage(direction) {
         const newIndex = this.currentIndex + direction;
         if (newIndex >= 0 && newIndex < this.currentItems.length) {
@@ -572,6 +663,7 @@ class Galleria {
         }
     }
 
+    // Close lightbox
     closeLightbox() {
         document.getElementById('fullscreenLightbox').classList.remove('active');
         document.body.style.overflow = '';
@@ -580,6 +672,7 @@ class Galleria {
         }
     }
 
+    // Download image
     downloadImage(item) {
         const link = document.createElement('a');
         link.href = item.urls.full;
@@ -590,16 +683,25 @@ class Galleria {
         this.showNotification('Download started!', 'success');
     }
 
+    // Quick save from overlay
     quickSave(index) {
         const item = this.currentItems[index];
         this.addToPrivate(item);
     }
 
+    // Quick share from overlay
     quickShare(index) {
         const item = this.currentItems[index];
         shareManager.showShareModal(item);
     }
 
+    // Quick add to album from overlay
+    addToAlbumQuick(index) {
+        const item = this.currentItems[index];
+        albumManager.showAddToAlbumModal(item);
+    }
+
+    // Add image to private gallery
     addToPrivate(item) {
         if (privateGallery.currentUser) {
             const success = privateGallery.addImageToPrivate({
@@ -612,15 +714,18 @@ class Galleria {
             });
             
             if (success) {
+                this.stats.incrementFavorites();
                 this.showNotification('Image saved to private gallery!', 'success');
             } else {
                 this.showNotification('Image already in private gallery!', 'info');
             }
         } else {
-            authManager.showAuthModal();
+            this.showNotification('Please login to save images!', 'error');
+            navigationHandler.showSection('privateBtn', 'privateSection');
         }
     }
 
+    // Animate initial elements
     animateInitialElements() {
         setTimeout(() => {
             document.querySelector('.navbar').style.animation = 'slideDown 0.6s ease forwards';
@@ -634,6 +739,7 @@ class Galleria {
         }, 300);
     }
 
+    // Show error message
     showError(message) {
         this.grid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 4rem;" class="error-message">
@@ -647,6 +753,7 @@ class Galleria {
         `;
     }
 
+    // Show notification
     showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
@@ -668,7 +775,7 @@ class Galleria {
     }
 }
 
-// Enhanced Private Gallery Class
+// Enhanced Private Gallery Class - User's private photo collection
 class PrivateGallery {
     constructor() {
         this.users = JSON.parse(localStorage.getItem('galleryUsers')) || {};
@@ -677,10 +784,12 @@ class PrivateGallery {
         this.init();
     }
 
+    // Initialize private gallery
     init() {
         this.setupEventListeners();
     }
 
+    // Setup event listeners for private gallery
     setupEventListeners() {
         const loginBtn = document.getElementById('privateLoginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -707,6 +816,7 @@ class PrivateGallery {
         });
     }
 
+    // Handle user login
     handleLogin() {
         const username = document.getElementById('privateUserId').value.trim();
         const passcode = document.getElementById('privatePasscode').value.trim();
@@ -730,6 +840,7 @@ class PrivateGallery {
                 this.showAuthMessage('Incorrect passcode', 'error');
             }
         } else {
+            // Create new user
             this.users[username] = {
                 passcode: passcode,
                 images: [],
@@ -743,6 +854,7 @@ class PrivateGallery {
         }
     }
 
+    // Show private gallery interface
     showPrivateGallery() {
         document.getElementById('privateAuth').style.display = 'none';
         document.getElementById('privateGallery').style.display = 'block';
@@ -759,6 +871,7 @@ class PrivateGallery {
         localStorage.setItem('galleryUsers', JSON.stringify(this.users));
     }
 
+    // Update user statistics display
     updateUserStats() {
         const user = this.users[this.currentUser];
         const statsElement = document.getElementById('userStats');
@@ -773,6 +886,7 @@ class PrivateGallery {
         }
     }
 
+    // Logout user
     logout() {
         this.currentUser = null;
         document.getElementById('privateAuth').style.display = 'block';
@@ -783,17 +897,20 @@ class PrivateGallery {
         this.showAuthMessage('Logged out successfully', 'success');
     }
 
+    // Show search container for adding images
     showSearchContainer() {
         document.getElementById('privateSearchContainer').style.display = 'block';
         document.getElementById('privateSearchInput').focus();
     }
 
+    // Hide search container
     hideSearchContainer() {
         document.getElementById('privateSearchContainer').style.display = 'none';
         document.getElementById('privateSearchInput').value = '';
         document.getElementById('privateSearchResults').innerHTML = '';
     }
 
+    // Search for images to add to private gallery
     async searchUnsplashImages(query) {
         if (!query.trim()) {
             document.getElementById('privateSearchResults').innerHTML = '';
@@ -821,6 +938,7 @@ class PrivateGallery {
         }
     }
 
+    // Render search results for private gallery
     renderSearchResults(results) {
         const container = document.getElementById('privateSearchResults');
         container.innerHTML = results.map(item => `
@@ -839,10 +957,11 @@ class PrivateGallery {
         this.searchResults = results;
     }
 
+    // Add image from search results
     addImageFromSearch(imageId) {
         const item = this.searchResults.find(img => img.id === imageId);
         if (item) {
-            this.addImageToPrivate({
+            const success = this.addImageToPrivate({
                 url: item.urls.full,
                 thumbnail: item.urls.small,
                 title: item.description || item.alt_description,
@@ -850,9 +969,16 @@ class PrivateGallery {
                 likes: item.likes,
                 savedAt: new Date().toISOString()
             });
+
+            if (success) {
+                galleria.showNotification('Image added to private gallery!', 'success');
+            } else {
+                galleria.showNotification('Image already in private gallery!', 'info');
+            }
         }
     }
 
+    // Render private gallery images
     renderPrivateImages() {
         const privateGrid = document.getElementById('privateGrid');
         const images = this.users[this.currentUser].images;
@@ -882,13 +1008,13 @@ class PrivateGallery {
                         <span><i class="fas fa-calendar"></i> ${Utils.formatTimeAgo(img.savedAt)}</span>
                     </div>
                     <div class="private-actions">
-                        <button onclick="privateGallery.viewImage(${index})" class="private-btn view">
+                        <button onclick="privateGallery.viewImage(${index})" class="private-btn view" title="View">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button onclick="privateGallery.downloadPrivateImage(${index})" class="private-btn download">
+                        <button onclick="privateGallery.downloadPrivateImage(${index})" class="private-btn download" title="Download">
                             <i class="fas fa-download"></i>
                         </button>
-                        <button onclick="privateGallery.removeImage(${index})" class="private-btn remove">
+                        <button onclick="privateGallery.removeImage(${index})" class="private-btn remove" title="Remove">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -897,6 +1023,7 @@ class PrivateGallery {
         `).join('');
     }
 
+    // Add image to private gallery
     addImageToPrivate(imageData) {
         if (!this.currentUser) return false;
 
@@ -918,6 +1045,7 @@ class PrivateGallery {
         return true;
     }
 
+    // View private image in lightbox
     viewImage(index) {
         const image = this.users[this.currentUser].images[index];
         if (image) {
@@ -940,6 +1068,7 @@ class PrivateGallery {
         }
     }
 
+    // Download private image
     downloadPrivateImage(index) {
         const image = this.users[this.currentUser].images[index];
         if (image) {
@@ -951,6 +1080,7 @@ class PrivateGallery {
         }
     }
 
+    // Remove image from private gallery
     removeImage(index) {
         if (!this.currentUser) return;
 
@@ -964,6 +1094,7 @@ class PrivateGallery {
         }
     }
 
+    // Update private image count display
     updateImageCount() {
         const count = this.users[this.currentUser]?.images.length || 0;
         const countElement = document.getElementById('privateImageCount');
@@ -972,6 +1103,7 @@ class PrivateGallery {
         }
     }
 
+    // Show authentication message
     showAuthMessage(message, type) {
         const authMsg = document.getElementById('privateAuthMsg');
         authMsg.textContent = message;
@@ -1002,52 +1134,571 @@ class PrivateGallery {
     }
 }
 
-// Search History Manager
+// Album Manager Class - Manages custom photo albums
+class AlbumManager {
+    constructor() {
+        this.albums = JSON.parse(localStorage.getItem('photoAlbums')) || {};
+        this.currentAlbum = null;
+        this.selectedImageForAlbum = null;
+        this.init();
+    }
+
+    // Initialize album manager
+    init() {
+        this.setupEventListeners();
+        this.renderAlbums();
+    }
+
+    // Setup event listeners for album functionality
+    setupEventListeners() {
+        // Create album button
+        document.getElementById('createAlbumBtn')?.addEventListener('click', () => {
+            this.showCreateAlbumModal();
+        });
+
+        // Album view toggles
+        document.getElementById('albumGridView')?.addEventListener('click', () => {
+            this.setAlbumViewMode('grid');
+        });
+
+        document.getElementById('albumListView')?.addEventListener('click', () => {
+            this.setAlbumViewMode('list');
+        });
+
+        // Back to albums button
+        document.getElementById('backToAlbums')?.addEventListener('click', () => {
+            this.showAlbumsView();
+        });
+
+        // Album action buttons
+        document.getElementById('addToAlbumBtn')?.addEventListener('click', () => {
+            // Show search or allow adding from main gallery
+            galleria.showNotification('Navigate to main gallery to add images to this album', 'info');
+        });
+
+        document.getElementById('editAlbumBtn')?.addEventListener('click', () => {
+            this.editCurrentAlbum();
+        });
+
+        document.getElementById('deleteAlbumBtn')?.addEventListener('click', () => {
+            this.deleteCurrentAlbum();
+        });
+
+        // Create album modal
+        document.getElementById('createAlbumConfirm')?.addEventListener('click', () => {
+            this.createAlbum();
+        });
+
+        document.getElementById('cancelCreateAlbum')?.addEventListener('click', () => {
+            this.hideCreateAlbumModal();
+        });
+
+        document.getElementById('closeCreateAlbumModal')?.addEventListener('click', () => {
+            this.hideCreateAlbumModal();
+        });
+
+        // Add to album modal
+        document.getElementById('addToSelectedAlbum')?.addEventListener('click', () => {
+            this.addToSelectedAlbum();
+        });
+
+        document.getElementById('cancelAddToAlbum')?.addEventListener('click', () => {
+            this.hideAddToAlbumModal();
+        });
+
+        document.getElementById('closeAddToAlbumModal')?.addEventListener('click', () => {
+            this.hideAddToAlbumModal();
+        });
+    }
+
+    // Create new album
+    createAlbum() {
+        const name = document.getElementById('albumName').value.trim();
+        const description = document.getElementById('albumDescription').value.trim();
+
+        if (!name) {
+            galleria.showNotification('Please enter an album name', 'error');
+            return;
+        }
+
+        const albumId = Utils.generateId();
+        this.albums[albumId] = {
+            id: albumId,
+            name: name,
+            description: description || '',
+            images: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+
+        localStorage.setItem('photoAlbums', JSON.stringify(this.albums));
+        galleria.stats.incrementAlbums();
+        this.renderAlbums();
+        this.hideCreateAlbumModal();
+        galleria.showNotification('Album created successfully!', 'success');
+    }
+
+    // Show create album modal
+    showCreateAlbumModal() {
+        document.getElementById('albumName').value = '';
+        document.getElementById('albumDescription').value = '';
+        document.getElementById('createAlbumModal').classList.add('active');
+    }
+
+    // Hide create album modal
+    hideCreateAlbumModal() {
+        document.getElementById('createAlbumModal').classList.remove('active');
+    }
+
+    // Show add to album modal
+    showAddToAlbumModal(imageData) {
+        this.selectedImageForAlbum = imageData;
+        this.renderAlbumSelection();
+        document.getElementById('addToAlbumModal').classList.add('active');
+    }
+
+    // Hide add to album modal
+    hideAddToAlbumModal() {
+        document.getElementById('addToAlbumModal').classList.remove('active');
+        this.selectedImageForAlbum = null;
+    }
+
+    // Render album selection in modal
+    renderAlbumSelection() {
+        const albumList = document.getElementById('albumList');
+        const albums = Object.values(this.albums);
+
+        if (albums.length === 0) {
+            albumList.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                    <i class="fas fa-folder-plus" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>No albums yet. Create your first album!</p>
+                    <button onclick="albumManager.hideAddToAlbumModal(); albumManager.showCreateAlbumModal();" class="action-btn primary" style="margin-top: 1rem;">
+                        <i class="fas fa-plus"></i> Create Album
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        albumList.innerHTML = albums.map(album => `
+            <div class="album-option" data-album-id="${album.id}">
+                <i class="fas fa-folder"></i>
+                <h4>${album.name}</h4>
+                <p>${album.images.length} photos</p>
+            </div>
+        `).join('');
+
+        // Add click event listeners
+        albumList.querySelectorAll('.album-option').forEach(option => {
+            option.addEventListener('click', () => {
+                albumList.querySelectorAll('.album-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            });
+        });
+    }
+
+    // Add to selected album
+    addToSelectedAlbum() {
+        const selectedOption = document.querySelector('.album-option.selected');
+        if (!selectedOption) {
+            galleria.showNotification('Please select an album', 'error');
+            return;
+        }
+
+        const albumId = selectedOption.dataset.albumId;
+        const album = this.albums[albumId];
+        
+        if (!album || !this.selectedImageForAlbum) return;
+
+        // Check if image already exists in album
+        const exists = album.images.some(img => img.url === this.selectedImageForAlbum.urls.full);
+        if (exists) {
+            galleria.showNotification('Image already in this album', 'info');
+            return;
+        }
+
+        // Add image to album
+        album.images.push({
+            url: this.selectedImageForAlbum.urls.full,
+            thumbnail: this.selectedImageForAlbum.urls.small,
+            title: this.selectedImageForAlbum.description || this.selectedImageForAlbum.alt_description,
+            author: this.selectedImageForAlbum.user.name,
+            likes: this.selectedImageForAlbum.likes,
+            addedAt: new Date().toISOString()
+        });
+
+        album.updatedAt = new Date().toISOString();
+        localStorage.setItem('photoAlbums', JSON.stringify(this.albums));
+        
+        this.hideAddToAlbumModal();
+        galleria.showNotification(`Image added to ${album.name}!`, 'success');
+        
+        // Update current view if viewing this album
+        if (this.currentAlbum === albumId) {
+            this.renderAlbumPhotos();
+        }
+    }
+
+    // Render all albums
+    renderAlbums() {
+        const albumsGrid = document.getElementById('albumsGrid');
+        const albums = Object.values(this.albums);
+
+        if (albums.length === 0) {
+            albumsGrid.innerHTML = `
+                <div class="empty-albums">
+                    <i class="fas fa-folder-plus glitter-effect"></i>
+                    <h3>No Albums Yet</h3>
+                    <p>Create your first album to organize your photos</p>
+                    <button onclick="albumManager.showCreateAlbumModal()" class="action-btn primary glitter-effect" style="margin-top: 1rem;">
+                        <i class="fas fa-plus"></i> Create Album
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        albumsGrid.innerHTML = albums.map(album => `
+            <div class="album-card glitter-border" onclick="albumManager.viewAlbum('${album.id}')">
+                <div class="album-preview">
+                    ${album.images.length > 0 ? 
+                        `<img src="${album.images[0].thumbnail}" alt="${album.name}" style="width: 100%; height: 100%; object-fit: cover;">` :
+                        '<i class="fas fa-folder"></i>'
+                    }
+                </div>
+                <div class="album-info">
+                    <h3>${album.name}</h3>
+                    <p>${album.description || 'No description'}</p>
+                    <div class="album-meta">
+                        <span><i class="fas fa-images"></i> ${album.images.length} photos</span>
+                        <span><i class="fas fa-calendar"></i> ${Utils.formatTimeAgo(album.updatedAt)}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // View specific album
+    viewAlbum(albumId) {
+        this.currentAlbum = albumId;
+        const album = this.albums[albumId];
+        
+        if (!album) return;
+
+        document.getElementById('albumsGrid').parentElement.style.display = 'none';
+        document.getElementById('albumView').style.display = 'block';
+        
+        document.getElementById('currentAlbumName').textContent = album.name;
+        document.getElementById('currentAlbumDescription').textContent = album.
+// ... (continuing from where the previous code was cut off)
+
+        document.getElementById('currentAlbumDescription').textContent = album.description || 'No description';
+        
+        this.renderAlbumPhotos();
+    }
+
+    // Render photos in current album
+    renderAlbumPhotos() {
+        const albumPhotosGrid = document.getElementById('albumPhotosGrid');
+        const album = this.albums[this.currentAlbum];
+        
+        if (!album) return;
+
+        if (album.images.length === 0) {
+            albumPhotosGrid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem;" class="empty-album">
+                    <i class="fas fa-images glitter-effect" style="font-size: 4rem; color: #87ceeb; margin-bottom: 1rem;"></i>
+                    <h3 style="color: #6b7280; margin-bottom: 1rem;">Album is Empty</h3>
+                    <p style="color: #9ca3af; margin-bottom: 2rem;">Add photos from the main gallery to start building this collection.</p>
+                    <button onclick="navigationHandler.showSection('homeBtn', 'mainApp')" class="action-btn primary glitter-effect">
+                        <i class="fas fa-search"></i> Browse Gallery
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        albumPhotosGrid.innerHTML = album.images.map((img, index) => `
+            <div class="gallery-item album-photo glitter-border" style="animation-delay: ${index * 100}ms">
+                <img src="${img.thumbnail || img.url}" alt="${img.title}" loading="lazy" class="glitter-border">
+                <div class="image-overlay">
+                    <h3>${img.title}</h3>
+                    <p>by ${img.author}</p>
+                    <div class="album-meta">
+                        <span><i class="fas fa-heart"></i> ${Utils.formatNumber(img.likes || 0)}</span>
+                        <span><i class="fas fa-calendar"></i> ${Utils.formatTimeAgo(img.addedAt)}</span>
+                    </div>
+                    <div class="album-actions">
+                        <button onclick="albumManager.viewAlbumImage(${index})" class="album-btn view" title="View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="albumManager.downloadAlbumImage(${index})" class="album-btn download" title="Download">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button onclick="albumManager.removeFromAlbum(${index})" class="album-btn remove" title="Remove">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // View image from album in lightbox
+    viewAlbumImage(index) {
+        const album = this.albums[this.currentAlbum];
+        const image = album.images[index];
+        
+        if (image) {
+            const tempItem = {
+                urls: { full: image.url, regular: image.url },
+                description: image.title,
+                alt_description: image.title,
+                user: { name: image.author },
+                links: { html: '#' },
+                likes: image.likes || 0,
+                views: 0,
+                downloads: 0,
+                created_at: image.addedAt
+            };
+            
+            galleria.currentItems = [tempItem];
+            galleria.showLightbox(0);
+        }
+    }
+
+    // Download image from album
+    downloadAlbumImage(index) {
+        const album = this.albums[this.currentAlbum];
+        const image = album.images[index];
+        
+        if (image) {
+            const link = document.createElement('a');
+            link.href = image.url;
+            link.download = `album-${album.name}-${image.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${Date.now()}.jpg`;
+            link.click();
+            galleria.showNotification('Download started!', 'success');
+        }
+    }
+
+    // Remove image from album
+    removeFromAlbum(index) {
+        const album = this.albums[this.currentAlbum];
+        
+        if (!album) return;
+
+        const confirmed = confirm('Are you sure you want to remove this image from the album?');
+        if (confirmed) {
+            album.images.splice(index, 1);
+            album.updatedAt = new Date().toISOString();
+            localStorage.setItem('photoAlbums', JSON.stringify(this.albums));
+            this.renderAlbumPhotos();
+            galleria.showNotification('Image removed from album', 'info');
+        }
+    }
+
+    // Show albums view
+    showAlbumsView() {
+        document.getElementById('albumsGrid').parentElement.style.display = 'block';
+        document.getElementById('albumView').style.display = 'none';
+        this.currentAlbum = null;
+        this.renderAlbums();
+    }
+
+    // Edit current album
+    editCurrentAlbum() {
+        const album = this.albums[this.currentAlbum];
+        if (!album) return;
+
+        const newName = prompt('Enter new album name:', album.name);
+        if (newName && newName.trim() !== album.name) {
+            album.name = newName.trim();
+            album.updatedAt = new Date().toISOString();
+            localStorage.setItem('photoAlbums', JSON.stringify(this.albums));
+            document.getElementById('currentAlbumName').textContent = album.name;
+            galleria.showNotification('Album updated!', 'success');
+        }
+    }
+
+    // Delete current album
+    deleteCurrentAlbum() {
+        const album = this.albums[this.currentAlbum];
+        if (!album) return;
+
+        const confirmed = confirm(`Are you sure you want to delete the album "${album.name}"? This action cannot be undone.`);
+        if (confirmed) {
+            delete this.albums[this.currentAlbum];
+            localStorage.setItem('photoAlbums', JSON.stringify(this.albums));
+            galleria.stats.decrementAlbums();
+            this.showAlbumsView();
+            galleria.showNotification('Album deleted', 'info');
+        }
+    }
+
+    // Set album view mode
+    setAlbumViewMode(mode) {
+        document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`album${mode.charAt(0).toUpperCase() + mode.slice(1)}View`).classList.add('active');
+    }
+}
+
+// Share Manager Class - Handles social media sharing
+class ShareManager {
+    constructor() {
+        this.currentImage = null;
+        this.init();
+    }
+
+    // Initialize share manager
+    init() {
+        this.setupEventListeners();
+    }
+
+    // Setup event listeners for sharing
+    setupEventListeners() {
+        // Share buttons
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const platform = e.currentTarget.dataset.platform;
+                this.shareToSocial(platform);
+            });
+        });
+
+        // Copy link button
+        document.getElementById('copyLink')?.addEventListener('click', () => {
+            this.copyShareLink();
+        });
+
+        // Close share modal
+        document.getElementById('closeShareModal')?.addEventListener('click', () => {
+            this.hideShareModal();
+        });
+    }
+
+    // Show share modal
+    showShareModal(imageData) {
+        this.currentImage = imageData;
+        const shareLink = document.getElementById('shareLink');
+        
+        // Generate shareable link (in real app, this would be a proper URL)
+        const link = imageData.links.html || `https://galleria.app/image/${imageData.id}`;
+        shareLink.value = link;
+        
+        document.getElementById('shareModal').classList.add('active');
+    }
+
+    // Hide share modal
+    hideShareModal() {
+        document.getElementById('shareModal').classList.remove('active');
+        this.currentImage = null;
+    }
+
+    // Share to social media platforms
+    shareToSocial(platform) {
+        if (!this.currentImage) return;
+
+        const image = this.currentImage;
+        const text = `Check out this amazing photo by ${image.user.name}`;
+        const url = image.links.html || `https://galleria.app/image/${image.id}`;
+        
+        let shareUrl = '';
+        
+        switch(platform) {
+            case 'facebook':
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                break;
+            case 'twitter':
+                shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+                break;
+            case 'linkedin':
+                shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+                break;
+            case 'pinterest':
+                shareUrl = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&media=${encodeURIComponent(image.urls.regular)}&description=${encodeURIComponent(text)}`;
+                break;
+        }
+        
+        if (shareUrl) {
+            window.open(shareUrl, '_blank', 'width=600,height=400');
+            galleria.showNotification(`Sharing to ${platform}!`, 'success');
+        }
+    }
+
+    // Copy share link to clipboard
+    async copyShareLink() {
+        const shareLink = document.getElementById('shareLink');
+        
+        try {
+            await navigator.clipboard.writeText(shareLink.value);
+            galleria.showNotification('Link copied to clipboard!', 'success');
+        } catch (err) {
+            // Fallback for older browsers
+            shareLink.select();
+            shareLink.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            galleria.showNotification('Link copied to clipboard!', 'success');
+        }
+    }
+}
+
+// Search History Manager - Tracks and displays search history
 class SearchHistory {
     constructor() {
-        this.history = this.loadHistory();
-        this.maxItems = CONFIG.MAX_HISTORY_ITEMS;
+        this.history = JSON.parse(localStorage.getItem('searchHistory')) || [];
+        this.init();
     }
 
-    loadHistory() {
-        return JSON.parse(localStorage.getItem('searchHistory')) || [];
-    }
-
-    saveHistory() {
-        localStorage.setItem('searchHistory', JSON.stringify(this.history));
-    }
-
-    addSearch(query) {
-        if (!query.trim()) return;
-
-        const existingIndex = this.history.findIndex(item => item.query === query);
-        if (existingIndex > -1) {
-            this.history[existingIndex].timestamp = new Date().toISOString();
-            this.history[existingIndex].count++;
-        } else {
-            this.history.unshift({
-                query,
-                timestamp: new Date().toISOString(),
-                count: 1
-            });
-        }
-
-        if (this.history.length > this.maxItems) {
-            this.history = this.history.slice(0, this.maxItems);
-        }
-
-        this.saveHistory();
+    // Initialize search history
+    init() {
+        this.setupEventListeners();
         this.renderHistory();
     }
 
-    renderHistory() {
-        const container = document.getElementById('historyContent');
-        if (!container) return;
+    // Setup event listeners for history
+    setupEventListeners() {
+        // Clear history button
+        document.getElementById('clearHistoryBtn')?.addEventListener('click', () => {
+            this.clearHistory();
+        });
 
+        // History filter
+        document.getElementById('historyFilter')?.addEventListener('change', (e) => {
+            this.filterHistory(e.target.value);
+        });
+    }
+
+    // Add search to history
+    addSearch(query) {
+        if (!query.trim()) return;
+
+        // Remove existing entry if it exists
+        this.history = this.history.filter(item => item.query !== query);
+        
+        // Add new entry at the beginning
+        this.history.unshift({
+            query: query,
+            timestamp: new Date().toISOString(),
+            results: galleria.currentItems.length
+        });
+
+        // Limit history size
+        if (this.history.length > CONFIG.MAX_HISTORY_ITEMS) {
+            this.history = this.history.slice(0, CONFIG.MAX_HISTORY_ITEMS);
+        }
+
+        localStorage.setItem('searchHistory', JSON.stringify(this.history));
+        this.renderHistory();
+    }
+
+    // Render search history
+    renderHistory() {
+        const historyContent = document.getElementById('historyContent');
+        
         if (this.history.length === 0) {
-            container.innerHTML = `
+            historyContent.innerHTML = `
                 <div class="empty-history">
-                    <i class="fas fa-search glitter-effect"></i>
+                    <i class="fas fa-search"></i>
                     <h3>No Search History</h3>
                     <p>Your search history will appear here</p>
                 </div>
@@ -1055,533 +1706,475 @@ class SearchHistory {
             return;
         }
 
-        const filteredHistory = this.getFilteredHistory();
-        container.innerHTML = filteredHistory.map(item => `
+        historyContent.innerHTML = this.history.map((item, index) => `
             <div class="history-item">
                 <div class="history-details">
-                    <h4 onclick="searchHistory.repeatSearch('${item.query}')" style="cursor: pointer; color: var(--sky-blue);">
-                        "${item.query}"
-                    </h4>
+                    <h4 onclick="searchHistory.repeatSearch('${item.query}')">${item.query}</h4>
                     <div class="history-meta">
                         <span><i class="fas fa-clock"></i> ${Utils.formatTimeAgo(item.timestamp)}</span>
-                        <span><i class="fas fa-redo"></i> ${item.count} times</span>
+                        <span><i class="fas fa-images"></i> ${item.results} results</span>
                     </div>
                 </div>
-                <button onclick="searchHistory.removeItem('${item.query}')" class="remove-history-btn">
+                <button class="remove-history-btn" onclick="searchHistory.removeItem(${index})" title="Remove">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         `).join('');
     }
 
-    getFilteredHistory() {
-        const filter = document.getElementById('historyFilter')?.value || 'all';
-        const now = new Date();
-        
-        return this.history.filter(item => {
-            const itemDate = new Date(item.timestamp);
-            const diffInDays = (now - itemDate) / (1000 * 60 * 60 * 24);
-            
-            switch(filter) {
-                case 'today': return diffInDays < 1;
-                case 'week': return diffInDays < 7;
-                case 'month': return diffInDays < 30;
-                default: return true;
-            }
-        });
-    }
-
+    // Repeat a search from history
     repeatSearch(query) {
         document.getElementById('searchInput').value = query;
-        document.getElementById('searchInput').dispatchEvent(new Event('input'));
+        galleria.searchBtn.click();
         navigationHandler.showSection('homeBtn', 'mainApp');
     }
 
-    removeItem(query) {
-        this.history = this.history.filter(item => item.query !== query);
-        this.saveHistory();
+    // Remove specific history item
+    removeItem(index) {
+        this.history.splice(index, 1);
+        localStorage.setItem('searchHistory', JSON.stringify(this.history));
         this.renderHistory();
+        galleria.showNotification('Search removed from history', 'info');
     }
 
-    clearAll() {
+    // Clear all history
+    clearHistory() {
         const confirmed = confirm('Are you sure you want to clear all search history?');
         if (confirmed) {
             this.history = [];
-            this.saveHistory();
+            localStorage.setItem('searchHistory', JSON.stringify(this.history));
             this.renderHistory();
-            galleria.showNotification('Search history cleared!', 'info');
+            galleria.showNotification('Search history cleared', 'info');
         }
     }
-}
 
-// Share Manager
-class ShareManager {
-    constructor() {
-        this.currentItem = null;
-        this.setupEventListeners();
+    // Filter history by time period
+    filterHistory(period) {
+        const now = new Date();
+        let filteredHistory = [...this.history];
+
+        switch(period) {
+            case 'today':
+                filteredHistory = this.history.filter(item => {
+                    const itemDate = new Date(item.timestamp);
+                    return itemDate.toDateString() === now.toDateString();
+                });
+                break;
+            case 'week':
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                filteredHistory = this.history.filter(item => 
+                    new Date(item.timestamp) >= weekAgo
+                );
+                break;
+            case 'month':
+                const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                filteredHistory = this.history.filter(item => 
+                    new Date(item.timestamp) >= monthAgo
+                );
+                break;
+            default:
+                filteredHistory = this.history;
+        }
+
+        this.renderFilteredHistory(filteredHistory);
     }
 
-    setupEventListeners() {
-        document.getElementById('closeShareModal')?.addEventListener('click', () => {
-            this.hideShareModal();
-        });
-
-        document.getElementById('copyLink')?.addEventListener('click', () => {
-            this.copyShareLink();
-        });
-
-        document.querySelectorAll('.share-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.shareToSocial(e.target.closest('.share-btn').dataset.platform);
-            });
-        });
-
-        // Close modal on overlay click
-        document.getElementById('shareModal')?.addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                this.hideShareModal();
-            }
-        });
-    }
-
-    showShareModal(item) {
-        this.currentItem = item;
-        const modal = document.getElementById('shareModal');
-        const shareLink = document.getElementById('shareLink');
+    // Render filtered history
+    renderFilteredHistory(items) {
+        const historyContent = document.getElementById('historyContent');
         
-        shareLink.value = item.links.html;
-        modal.classList.add('active');
-    }
-
-    hideShareModal() {
-        document.getElementById('shareModal').classList.remove('active');
-        this.currentItem = null;
-    }
-
-    copyShareLink() {
-        const shareLink = document.getElementById('shareLink');
-        shareLink.select();
-        document.execCommand('copy');
-        galleria.showNotification('Link copied to clipboard!', 'success');
-    }
-
-    shareToSocial(platform) {
-        if (!this.currentItem) return;
-
-        const url = encodeURIComponent(this.currentItem.links.html);
-        const text = encodeURIComponent(`Check out this amazing photo by ${this.currentItem.user.name}!`);
-        const hashtags = encodeURIComponent('photography,galleria,unsplash');
-
-        const shareUrls = {
-            facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
-            twitter: `https://twitter.com/intent/tweet?url=${url}&text=${text}&hashtags=${hashtags}`,
-            linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
-            pinterest: `https://pinterest.com/pin/create/button/?url=${url}&description=${text}`,
-            reddit: `https://reddit.com/submit?url=${url}&title=${text}`,
-            whatsapp: `https://wa.me/?text=${text} ${url}`
-        };
-
-        if (shareUrls[platform]) {
-            window.open(shareUrls[platform], '_blank', 'width=600,height=400');
-            galleria.showNotification(`Shared to ${platform}!`, 'success');
+        if (items.length === 0) {
+            historyContent.innerHTML = `
+                <div class="empty-history">
+                    <i class="fas fa-search"></i>
+                    <h3>No Search History</h3>
+                    <p>No searches found for the selected time period</p>
+                </div>
+            `;
+            return;
         }
+
+        historyContent.innerHTML = items.map((item, index) => `
+            <div class="history-item">
+                <div class="history-details">
+                    <h4 onclick="searchHistory.repeatSearch('${item.query}')">${item.query}</h4>
+                    <div class="history-meta">
+                        <span><i class="fas fa-clock"></i> ${Utils.formatTimeAgo(item.timestamp)}</span>
+                        <span><i class="fas fa-images"></i> ${item.results} results</span>
+                    </div>
+                </div>
+                <button class="remove-history-btn" onclick="searchHistory.removeItem(${this.history.indexOf(item)})" title="Remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
     }
 }
 
-// Authentication Manager
-class AuthManager {
-    constructor() {
-        this.setupEventListeners();
-    }
-
-    setupEventListeners() {
-        document.getElementById('closeAuthModal')?.addEventListener('click', () => {
-            this.hideAuthModal();
-        });
-
-        document.getElementById('goToPrivate')?.addEventListener('click', () => {
-            this.hideAuthModal();
-            navigationHandler.showSection('privateBtn', 'privateSection');
-        });
-
-        document.getElementById('cancelAuth')?.addEventListener('click', () => {
-            this.hideAuthModal();
-        });
-
-        // Close modal on overlay click
-        document.getElementById('authModal')?.addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                this.hideAuthModal();
-            }
-        });
-    }
-
-    showAuthModal() {
-        document.getElementById('authModal').classList.add('active');
-    }
-
-    hideAuthModal() {
-        document.getElementById('authModal').classList.remove('active');
-    }
-}
-
-// Enhanced Navigation Handler
+// Navigation Handler - Manages navigation between sections
 class NavigationHandler {
     constructor() {
-        this.sections = {
-            homeBtn: 'mainApp',
-            aboutBtn: 'aboutSection',
-            privateBtn: 'privateSection',
-            historyBtn: 'historySection'
-        };
+        this.currentSection = 'mainApp';
         this.init();
     }
 
+    // Initialize navigation
     init() {
-        Object.entries(this.sections).forEach(([btnId, sectionId]) => {
-            const btn = document.getElementById(btnId);
-            if (btn) {
-                btn.addEventListener('click', () => this.showSection(btnId, sectionId));
-            }
+        this.setupEventListeners();
+        this.showSection('homeBtn', 'mainApp');
+    }
+
+    // Setup navigation event listeners
+    setupEventListeners() {
+        // Navigation buttons
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const btnId = e.currentTarget.id;
+                const sectionMap = {
+                    'homeBtn': 'mainApp',
+                    'aboutBtn': 'aboutSection',
+                    'privateBtn': 'privateSection',
+                    'albumsBtn': 'albumsSection',
+                    'historyBtn': 'historySection'
+                };
+                
+                const sectionId = sectionMap[btnId];
+                if (sectionId) {
+                    this.showSection(btnId, sectionId);
+                }
+            });
         });
 
-        // History filter
-        document.getElementById('historyFilter')?.addEventListener('change', () => {
-            searchHistory.renderHistory();
+        // Modal overlay clicks
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', () => {
+                overlay.closest('.modal, .share-modal').classList.remove('active');
+            });
         });
 
-        // Clear history
-        document.getElementById('clearHistoryBtn')?.addEventListener('click', () => {
-            searchHistory.clearAll();
+        // Lightbox overlay click
+        document.querySelector('.lightbox-overlay')?.addEventListener('click', () => {
+            galleria.closeLightbox();
         });
     }
 
-    showSection(btnId, sectionId) {
-        // Update active button
+    // Show specific section
+    showSection(buttonId, sectionId) {
+        // Update navigation buttons
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(btnId).classList.add('active');
+        document.getElementById(buttonId)?.classList.add('active');
 
-        // Show/hide sections
-        document.querySelectorAll('.app-container > section').forEach(section => {
+        // Hide all sections
+        document.querySelectorAll('.content-section, #mainApp').forEach(section => {
             section.style.display = 'none';
         });
-        document.getElementById(sectionId).style.display = 'block';
 
-        // Special handling for history section
-        if (sectionId === 'historySection') {
-            searchHistory.renderHistory();
+        // Show selected section
+        document.getElementById(sectionId).style.display = 'block';
+        this.currentSection = sectionId;
+
+        // Section-specific actions
+        switch(sectionId) {
+            case 'albumsSection':
+                albumManager.renderAlbums();
+                break;
+            case 'historySection':
+                searchHistory.renderHistory();
+                break;
+            case 'privateSection':
+                if (privateGallery.currentUser) {
+                    privateGallery.showPrivateGallery();
+                }
+                break;
         }
 
-        // Animate section entrance
-        const section = document.getElementById(sectionId);
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            section.style.transition = 'all 0.5s ease';
-            section.style.opacity = '1';
-            section.style.transform = 'translateY(0)';
-        }, 50);
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
-// Scroll Animation Handler
-class ScrollAnimationHandler {
+// Initialize Application - Creates instances of all managers
+class GalleriaApp {
     constructor() {
         this.init();
     }
 
-    init() {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-in');
-                    }
-                });
-            },
-            {
-                threshold: 0.1,
-                rootMargin: '50px'
-            }
-        );
-
-        document.querySelectorAll('.scroll-animate').forEach(el => {
-            observer.observe(el);
-        });
-
-        this.addScrollClasses();
+    // Initialize the complete application
+    async init() {
+        // Wait for DOM to be fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.startApp());
+        } else {
+            this.startApp();
+        }
     }
 
-    addScrollClasses() {
-        const elementsToAnimate = [
-            '.about-card',
-            '.contact-card',
-            '.auth-card',
-            '.private-header',
-            '.private-stats',
-            '.stat-card'
-        ];
+    // Start the application
+    startApp() {
+        try {
+            // Initialize all managers
+            window.galleria = new Galleria();
+            window.privateGallery = new PrivateGallery();
+            window.albumManager = new AlbumManager();
+            window.shareManager = new ShareManager();
+            window.searchHistory = new SearchHistory();
+            window.navigationHandler = new NavigationHandler();
 
-        elementsToAnimate.forEach(selector => {
-            document.querySelectorAll(selector).forEach(el => {
-                el.classList.add('scroll-animate');
-            });
+            // Setup global error handling
+            this.setupErrorHandling();
+            
+            // Setup service worker for offline support (if needed)
+            this.setupServiceWorker();
+            
+            console.log('Galleria application initialized successfully!');
+        } catch (error) {
+            console.error('Failed to initialize Galleria:', error);
+            this.showCriticalError();
+        }
+    }
+
+    // Setup global error handling
+    setupErrorHandling() {
+        window.addEventListener('error', (e) => {
+            console.error('Global error:', e.error);
+            galleria?.showNotification('An unexpected error occurred', 'error');
         });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('Unhandled promise rejection:', e.reason);
+            galleria?.showNotification('An unexpected error occurred', 'error');
+        });
+    }
+
+    // Setup service worker for offline support
+    setupServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered:', registration);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+    }
+
+    // Show critical error when app fails to initialize
+    showCriticalError() {
+        document.body.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f3f4f6; font-family: system-ui;">
+                <div style="text-align: center; padding: 2rem; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 500px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: #ef4444; margin-bottom: 1rem;"></i>
+                    <h2 style="color: #374151; margin-bottom: 1rem;">Application Error</h2>
+                    <p style="color: #6b7280; margin-bottom: 2rem;">Failed to initialize Galleria. Please refresh the page and try again.</p>
+                    <button onclick="window.location.reload()" style="padding: 1rem 2rem; background: #3b82f6; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 500;">
+                        <i class="fas fa-redo"></i> Reload Page
+                    </button>
+                </div>
+            </div>
+        `;
     }
 }
 
-// Initialize Application
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize all components
-    window.galleria = new Galleria();
-    window.privateGallery = new PrivateGallery();
-    window.searchHistory = new SearchHistory();
-    window.shareManager = new ShareManager();
-    window.authManager = new AuthManager();
-    window.navigationHandler = new NavigationHandler();
-    window.scrollAnimationHandler = new ScrollAnimationHandler();
+// Additional CSS for overlay buttons and enhanced styles
+const additionalStyles = `
+.overlay-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
 
-    // Add additional CSS for new features
-    const additionalStyles = document.createElement('style');
-    additionalStyles.textContent = `
-        .overlay-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
+.overlay-btn {
+    width: 35px;
+    height: 35px;
+    background: rgba(0, 191, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
 
-        .overlay-btn {
-            width: 35px;
-            height: 35px;
-            background: rgba(0, 191, 255, 0.8);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
+.overlay-btn:hover {
+    background: var(--sky-blue-dark);
+    transform: scale(1.1);
+}
 
-        .overlay-btn:hover {
-            background: var(--sky-blue);
-            transform: scale(1.1);
-        }
+.search-result-item {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    background: white;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
 
-        .search-result-item {
-            position: relative;
-            border-radius: 15px;
-            overflow: hidden;
-            background: white;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
-        }
+.search-result-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
 
-        .search-result-item:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
+.result-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    color: white;
+    padding: 1rem;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
 
-        .search-result-item img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
+.search-result-item:hover .result-overlay {
+    transform: translateY(0);
+}
 
-        .result-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            color: white;
-            padding: 1rem;
-        }
+.add-btn {
+    padding: 0.5rem 1rem;
+    background: var(--gradient-sky);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    transition: all 0.3s ease;
+}
 
-        .add-btn {
-            padding: 0.5rem 1rem;
-            background: var(--sky-blue);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            margin-top: 0.5rem;
-            transition: all 0.3s ease;
-        }
+.add-btn:hover {
+    transform: scale(1.05);
+}
 
-        .add-btn:hover {
-            background: var(--sky-blue-dark);
-            transform: scale(1.05);
-        }
+.private-btn, .album-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 0.875rem;
+}
 
-        .private-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
+.private-btn.view, .album-btn.view {
+    background: var(--sky-blue);
+}
 
-        .private-btn {
-            width: 30px;
-            height: 30px;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            font-size: 0.75rem;
-        }
+.private-btn.download, .album-btn.download {
+    background: var(--success-color);
+}
 
-        .private-btn.view {
-            background: var(--sky-blue);
-            color: white;
-        }
+.private-btn.remove, .album-btn.remove {
+    background: var(--danger-color);
+}
 
-        .private-btn.download {
-            background: var(--success-color);
-            color: white;
-        }
+.private-btn:hover, .album-btn:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-sm);
+}
 
-        .private-btn.remove {
-            background: var(--danger-color);
-            color: white;
-        }
+.private-actions, .album-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
 
-        .private-btn:hover {
-            transform: scale(1.2);
-        }
+.private-meta, .album-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
 
-        .private-meta {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.75rem;
-            margin: 0.5rem 0;
-        }
+.private-meta span, .album-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
 
-        .private-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
+.auth-message {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
 
-        #privateSearchResults {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
+.auth-message.success {
+    color: var(--success-color);
+}
 
-        .history-item {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
+.auth-message.error {
+    color: var(--danger-color);
+}
 
-        .history-item:hover {
-            background: rgba(0, 191, 255, 0.05);
-            border-left: 4px solid var(--sky-blue);
-            padding-left: calc(1.5rem - 4px);
-        }
+.auth-message.info {
+    color: var(--sky-blue);
+}
 
-        .history-item:last-child {
-            border-bottom: none;
-        }
-
-        .history-details h4 {
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-            font-weight: 500;
-        }
-
-        .history-meta {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-
-        .history-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .remove-history-btn {
-            width: 30px;
-            height: 30px;
-            background: var(--danger-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            opacity: 0.7;
-        }
-
-        .remove-history-btn:hover {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .error-message .action-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: var(--sky-blue);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .error-message .action-btn:hover {
-            background: var(--sky-blue-dark);
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 768px) {
-            .overlay-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .overlay-btn {
-                width: 100%;
-                height: 40px;
-                border-radius: 20px;
-            }
-
-            #privateSearchResults {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-
-            .history-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .history-meta {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-        }
-    `;
+@media (max-width: 768px) {
+    .private-search-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
     
-    document.head.appendChild(additionalStyles);
+    .search-result-item {
+        margin: 0.5rem 0;
+    }
+    
+    .private-actions, .album-actions {
+        gap: 0.25rem;
+    }
+    
+    .overlay-actions {
+        gap: 0.25rem;
+    }
+    
+    .overlay-btn {
+        width: 30px;
+        height: 30px;
+    }
+}
+`;
 
-    console.log('🎨 Enhanced Galleria initialized successfully!');
-});
+// Inject additional styles
+const styleSheet = document.createElement('style');
+styleSheet.textContent = additionalStyles;
+document.head.appendChild(styleSheet);
+
+// Initialize the application
+const app = new GalleriaApp();
+
+// Export for global access (if needed for debugging)
+window.GalleriaApp = GalleriaApp;
+window.Utils = Utils;
+window.CONFIG = CONFIG;
+
+// Console welcome message
+console.log(`
+%c  ____       _ _            _       
+ / ___| __ _| | | ___ _ __(_) __ _ 
+| |  _ / _\` | | |/ _ \\ '__| |/ _\` |
+| |_| | (_| | | |  __/ |  | | (_| |
+ \\____|\\__,_|_|_|\\___|_|  |_|\\__,_|
+
+Advanced Photo Gallery Application
+Developed by Amit Kumar
+Under Guidance of Tarush Sir
+`, 'color: #00bfff; font-weight: bold;');
+
+console.log('🚀 Galleria initialized successfully!');
+console.log('📱 Responsive design active');
+console.log('✨ All features loaded and ready');
+console.log('🎨 Enhanced UI with glitter effects active');
+console.log('📊 Statistics tracking enabled');
