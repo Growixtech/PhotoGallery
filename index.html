@@ -3,43 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galleria - Advanced Photo Gallery</title>
+    <title>Galleria - Smart Photo Gallery</title>
     <link rel="stylesheet" href="style.css">
     <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts for typography -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation Bar - Fixed header with navigation buttons -->
+    <!-- Navigation Bar -->
     <nav class="navbar">
-        <div class="logo glitter-effect">
+        <div class="logo neon-glow">
             <i class="fas fa-camera-retro"></i>
             <span class="logo-text">Galleria</span>
         </div>
         <ul class="nav-links">
-            <!-- Home Button - Shows main gallery -->
-            <li><button class="nav-btn active glitter-border" id="homeBtn" data-text="Home">
+            <li><button class="nav-btn active neon-border" id="homeBtn">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </button></li>
-            <!-- About Button - Shows information about the project -->
-            <li><button class="nav-btn glitter-border" id="aboutBtn" data-text="About">
+            <li><button class="nav-btn neon-border" id="aboutBtn">
                 <i class="fas fa-info-circle"></i>
                 <span>About</span>
             </button></li>
-            <!-- Private Gallery Button - Shows user's private collection -->
-            <li><button class="nav-btn glitter-border" id="privateBtn" data-text="Private">
+            <li><button class="nav-btn neon-border" id="privateBtn">
                 <i class="fas fa-lock"></i>
                 <span>Private</span>
             </button></li>
-            <!-- Albums Button - Shows custom albums feature -->
-            <li><button class="nav-btn glitter-border" id="albumsBtn" data-text="Albums">
+            <li><button class="nav-btn neon-border" id="albumsBtn">
                 <i class="fas fa-folder"></i>
                 <span>Albums</span>
             </button></li>
-            <!-- History Button - Shows search history -->
-            <li><button class="nav-btn glitter-border" id="historyBtn" data-text="History">
+            <li><button class="nav-btn neon-border" id="historyBtn">
                 <i class="fas fa-history"></i>
                 <span>History</span>
             </button></li>
@@ -47,72 +42,63 @@
     </nav>
 
     <div class="app-container">
-        <!-- Main Gallery Section - Primary interface for browsing photos -->
+        <!-- Main Gallery Section -->
         <section id="mainApp">
             <header class="app-header">
-                <div class="hero-content animate-slide-up">
-                    <!-- Main title with glitter effect -->
-                    <h1 class="galleria-gradient glitter-text">Galleria</h1>
+                <div class="hero-content">
+                    <h1 class="neon-text">Galleria</h1>
                     <p class="hero-subtitle">Transform your visual experience through stunning photography</p>
-                    <!-- Statistics display for user engagement -->
                     <div class="hero-stats">
-                        <div class="stat-item">
+                        <div class="stat-item neon-border">
                             <span class="stat-number" id="totalImages">0</span>
                             <span class="stat-label">Images Loaded</span>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-item neon-border">
                             <span class="stat-number" id="totalSearches">0</span>
                             <span class="stat-label">Total Searches</span>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-item neon-border">
                             <span class="stat-number" id="totalAlbums">0</span>
                             <span class="stat-label">Albums Created</span>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-item neon-border">
                             <span class="stat-number" id="totalDownloads">0</span>
                             <span class="stat-label">Downloads</span>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-number" id="totalFavorites">0</span>
-                            <span class="stat-label">Favorites</span>
-                        </div>
                     </div>
                 </div>
-                <!-- Enhanced search container with search and clear buttons -->
-                <div class="search-container animate-slide-up">
-                    <div class="search-wrapper glitter-border">
+                
+                <!-- Enhanced search container -->
+                <div class="search-container">
+                    <div class="search-wrapper neon-border">
                         <i class="fas fa-search search-icon"></i>
                         <input type="text" id="searchInput" placeholder="Search breathtaking photos..." autocomplete="off">
-                        <!-- Search button for manual search trigger -->
-                        <button id="searchBtn" class="search-btn glitter-effect">
+                        <button id="searchBtn" class="search-btn neon-glow">
                             <i class="fas fa-search"></i>
                             <span class="search-text">Search</span>
                         </button>
-                        <!-- Clear button to reset search -->
-                        <button id="clearSearch" class="clear-btn glitter-effect">
+                        <button id="clearSearch" class="clear-btn neon-glow">
                             <i class="fas fa-broom"></i>
                             <span class="clear-text">Clear</span>
                         </button>
                     </div>
-                    <!-- Search suggestions dropdown -->
                     <div class="search-suggestions" id="searchSuggestions"></div>
                 </div>
             </header>
             
             <main class="gallery-container">
-                <!-- Gallery controls for view mode and sorting -->
+                <!-- Gallery controls -->
                 <div class="gallery-controls">
                     <div class="view-options">
-                        <button class="control-btn active" id="gridView">
+                        <button class="control-btn active neon-border" id="gridView">
                             <i class="fas fa-th"></i> Grid
                         </button>
-                        <button class="control-btn" id="listView">
+                        <button class="control-btn neon-border" id="listView">
                             <i class="fas fa-list"></i> List
                         </button>
                     </div>
-                    <!-- Enhanced sort options with modern styling -->
                     <div class="sort-options">
-                        <div class="sort-wrapper">
+                        <div class="sort-wrapper neon-border">
                             <button class="sort-btn active" data-sort="relevance">
                                 <i class="fas fa-star"></i>
                                 <span>Most Relevant</span>
@@ -128,56 +114,53 @@
                         </div>
                     </div>
                 </div>
-                <!-- Main gallery grid for displaying images -->
+                
+                <!-- Main gallery grid -->
                 <div class="adaptive-grid" id="adaptiveGrid"></div>
-                <!-- Loading indicator -->
                 <div class="loading" id="loading">
-                    <div class="loading-spinner glitter-effect"></div>
+                    <div class="loading-spinner neon-glow"></div>
                     <p>Loading stunning images...</p>
                 </div>
             </main>
         </section>
 
-        <!-- About Section - Information about the project and developer -->
+        <!-- About Section -->
         <section class="content-section about-section" id="aboutSection" style="display:none;">
             <div class="section-container">
-                <div class="section-header animate-fade-in">
-                    <h2 class="glitter-text"><i class="fas fa-info-circle"></i> About Galleria</h2>
-                    <div class="section-divider glitter-effect"></div>
+                <div class="section-header">
+                    <h2 class="neon-text"><i class="fas fa-info-circle"></i> About Galleria</h2>
+                    <div class="section-divider neon-glow"></div>
                 </div>
                 
                 <div class="about-content">
-                    <!-- Project vision card -->
-                    <div class="about-card animate-slide-up glitter-border">
-                        <div class="card-icon glitter-effect">
+                    <div class="about-card neon-border">
+                        <div class="card-icon neon-glow">
                             <i class="fas fa-palette"></i>
                         </div>
                         <h3>Project Vision</h3>
                         <p>Galleria is a cutting-edge photo gallery application that showcases the beauty of photography through modern web technologies and intuitive user experience design.</p>
                         <div class="feature-tags">
-                            <span class="tag">Modern Design</span>
-                            <span class="tag">Responsive</span>
-                            <span class="tag">Interactive</span>
+                            <span class="tag neon-glow">Modern Design</span>
+                            <span class="tag neon-glow">Responsive</span>
+                            <span class="tag neon-glow">Interactive</span>
                         </div>
                     </div>
 
-                    <!-- Technical excellence card -->
-                    <div class="about-card animate-slide-up glitter-border">
-                        <div class="card-icon glitter-effect">
+                    <div class="about-card neon-border">
+                        <div class="card-icon neon-glow">
                             <i class="fas fa-code"></i>
                         </div>
                         <h3>Technical Excellence</h3>
                         <p>Built with pure HTML5, CSS3, and vanilla JavaScript, demonstrating modern web standards with responsive design, advanced animations, and seamless API integration.</p>
                         <div class="tech-stack">
-                            <span class="tech-item"><i class="fab fa-html5"></i> HTML5</span>
-                            <span class="tech-item"><i class="fab fa-css3-alt"></i> CSS3</span>
-                            <span class="tech-item"><i class="fab fa-js-square"></i> JavaScript</span>
+                            <span class="tech-item neon-border"><i class="fab fa-html5"></i> HTML5</span>
+                            <span class="tech-item neon-border"><i class="fab fa-css3-alt"></i> CSS3</span>
+                            <span class="tech-item neon-border"><i class="fab fa-js-square"></i> JavaScript</span>
                         </div>
                     </div>
 
-                    <!-- Advanced features card -->
-                    <div class="about-card animate-slide-up glitter-border">
-                        <div class="card-icon glitter-effect">
+                    <div class="about-card neon-border">
+                        <div class="card-icon neon-glow">
                             <i class="fas fa-star"></i>
                         </div>
                         <h3>Advanced Features</h3>
@@ -191,45 +174,22 @@
                             <li><i class="fas fa-check"></i> Search history tracking</li>
                         </ul>
                     </div>
-
-                    <!-- Developer contact card -->
-                    <div class="contact-card animate-slide-up glitter-border">
-                        <div class="card-icon glitter-effect">
-                            <i class="fas fa-user-graduate"></i>
-                        </div>
-                        <h3>Development Team</h3>
-                        <p><strong>Developed by Amit Kumar</strong><br>
-                        Under Guidance of <strong>Tarush Sir</strong></p>
-                        <div class="contact-info">
-                            <a href="mailto:amitsinglakumar@gmail.com" class="contact-btn glitter-effect">
-                                <i class="fas fa-paper-plane"></i>
-                                amitsinglakumar@gmail.com
-                            </a>
-                        </div>
-                        <div class="social-links">
-                            <a href="#" class="social-btn glitter-effect"><i class="fab fa-github"></i></a>
-                            <a href="#" class="social-btn glitter-effect"><i class="fab fa-linkedin"></i></a>
-                            <a href="#" class="social-btn glitter-effect"><i class="fab fa-twitter"></i></a>
-                            <a href="#" class="social-btn glitter-effect"><i class="fab fa-instagram"></i></a>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Private Gallery Section - User's private photo collection -->
+        <!-- Private Gallery Section -->
         <section class="content-section private-section" id="privateSection" style="display:none;">
             <div class="section-container">
-                <div class="section-header animate-fade-in">
-                    <h2 class="glitter-text"><i class="fas fa-shield-alt"></i> Private Gallery</h2>
-                    <div class="section-divider glitter-effect"></div>
+                <div class="section-header">
+                    <h2 class="neon-text"><i class="fas fa-shield-alt"></i> Private Gallery</h2>
+                    <div class="section-divider neon-glow"></div>
                 </div>
 
-                <!-- Authentication form for private access -->
-                <div id="privateAuth" class="auth-container animate-slide-up">
-                    <div class="auth-card glitter-border">
+                <div id="privateAuth" class="auth-container">
+                    <div class="auth-card neon-border">
                         <div class="auth-header">
-                            <div class="auth-icon glitter-effect">
+                            <div class="auth-icon neon-glow">
                                 <i class="fas fa-user-shield"></i>
                             </div>
                             <h3>Secure Access Required</h3>
@@ -239,14 +199,12 @@
                             <div class="input-group">
                                 <i class="fas fa-user"></i>
                                 <input type="text" id="privateUserId" placeholder="Enter username" maxlength="20">
-                                <div class="input-glow"></div>
                             </div>
                             <div class="input-group">
                                 <i class="fas fa-key"></i>
                                 <input type="password" id="privatePasscode" placeholder="4-digit passcode" maxlength="4" pattern="\d{4}">
-                                <div class="input-glow"></div>
                             </div>
-                            <button id="privateLoginBtn" class="auth-btn glitter-effect">
+                            <button id="privateLoginBtn" class="auth-btn neon-glow">
                                 <span>Access Private Gallery</span>
                                 <i class="fas fa-arrow-right"></i>
                             </button>
@@ -255,11 +213,10 @@
                     </div>
                 </div>
 
-                <!-- Private gallery interface -->
                 <div id="privateGallery" style="display:none;">
-                    <div class="private-header animate-fade-in">
+                    <div class="private-header">
                         <div class="user-info">
-                            <div class="user-avatar glitter-effect">
+                            <div class="user-avatar neon-glow">
                                 <i class="fas fa-user"></i>
                             </div>
                             <div class="user-details">
@@ -268,8 +225,7 @@
                             </div>
                         </div>
                         <div class="private-actions">
-                            <!-- Styled add images button -->
-                            <button id="addImageBtn" class="action-btn primary glitter-effect">
+                            <button id="addImageBtn" class="action-btn primary neon-glow">
                                 <i class="fas fa-plus"></i>
                                 Add Images
                             </button>
@@ -280,9 +236,8 @@
                         </div>
                     </div>
 
-                    <!-- Search container for adding images -->
-                    <div class="private-search-container animate-slide-up" id="privateSearchContainer" style="display:none;">
-                        <div class="search-wrapper glitter-border">
+                    <div class="private-search-container" id="privateSearchContainer" style="display:none;">
+                        <div class="search-wrapper neon-border">
                             <i class="fas fa-search search-icon"></i>
                             <input type="text" id="privateSearchInput" placeholder="Search images to add...">
                             <button id="cancelPrivateSearch" class="cancel-btn">
@@ -292,23 +247,22 @@
                         <div class="search-results" id="privateSearchResults"></div>
                     </div>
 
-                    <!-- Private gallery statistics -->
-                    <div class="private-stats animate-slide-up">
-                        <div class="stat-card glitter-border">
+                    <div class="private-stats">
+                        <div class="stat-card neon-border">
                             <i class="fas fa-images"></i>
                             <div class="stat-content">
                                 <span id="privateImageCount">0</span>
                                 <label>Saved Images</label>
                             </div>
                         </div>
-                        <div class="stat-card glitter-border">
+                        <div class="stat-card neon-border">
                             <i class="fas fa-calendar"></i>
                             <div class="stat-content">
                                 <span id="lastActivity">Never</span>
                                 <label>Last Activity</label>
                             </div>
                         </div>
-                        <div class="stat-card glitter-border">
+                        <div class="stat-card neon-border">
                             <i class="fas fa-download"></i>
                             <div class="stat-content">
                                 <span id="totalPrivateDownloads">0</span>
@@ -322,86 +276,43 @@
             </div>
         </section>
 
-        <!-- Albums Section - Custom photo albums management -->
+        <!-- Albums Section -->
         <section class="content-section albums-section" id="albumsSection" style="display:none;">
             <div class="section-container">
-                <div class="section-header animate-fade-in">
-                    <h2 class="glitter-text"><i class="fas fa-folder"></i> Photo Albums</h2>
-                    <div class="section-divider glitter-effect"></div>
+                <div class="section-header">
+                    <h2 class="neon-text"><i class="fas fa-folder"></i> Photo Albums</h2>
+                    <div class="section-divider neon-glow"></div>
                 </div>
 
-                <!-- Album management controls -->
                 <div class="album-controls">
-                    <button id="createAlbumBtn" class="control-btn primary glitter-effect">
+                    <button id="createAlbumBtn" class="control-btn primary neon-glow">
                         <i class="fas fa-plus"></i> Create New Album
                     </button>
-                    <div class="album-view-options">
-                        <button class="control-btn active" id="albumGridView">
-                            <i class="fas fa-th"></i> Grid
-                        </button>
-                        <button class="control-btn" id="albumListView">
-                            <i class="fas fa-list"></i> List
-                        </button>
-                    </div>
                 </div>
 
-                <!-- Albums grid display -->
                 <div class="albums-grid" id="albumsGrid">
                     <div class="empty-albums">
-                        <i class="fas fa-folder-plus glitter-effect"></i>
+                        <i class="fas fa-folder-plus neon-glow"></i>
                         <h3>No Albums Yet</h3>
                         <p>Create your first album to organize your photos</p>
                     </div>
                 </div>
-
-                <!-- Individual album view -->
-                <div class="album-view" id="albumView" style="display:none;">
-                    <div class="album-header">
-                        <button id="backToAlbums" class="back-btn">
-                            <i class="fas fa-arrow-left"></i> Back to Albums
-                        </button>
-                        <div class="album-info">
-                            <h3 id="currentAlbumName">Album Name</h3>
-                            <p id="currentAlbumDescription">Album Description</p>
-                        </div>
-                        <div class="album-actions">
-                            <button id="addToAlbumBtn" class="action-btn primary">
-                                <i class="fas fa-plus"></i> Add Photos
-                            </button>
-                            <button id="editAlbumBtn" class="action-btn secondary">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            <button id="deleteAlbumBtn" class="action-btn danger">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
-                        </div>
-                    </div>
-                    <div class="adaptive-grid" id="albumPhotosGrid"></div>
-                </div>
             </div>
         </section>
 
-        <!-- History Section - Search history tracking -->
+        <!-- History Section -->
         <section class="content-section history-section" id="historySection" style="display:none;">
             <div class="section-container">
-                <div class="section-header animate-fade-in">
-                    <h2 class="glitter-text"><i class="fas fa-history"></i> Search History</h2>
-                    <div class="section-divider glitter-effect"></div>
+                <div class="section-header">
+                    <h2 class="neon-text"><i class="fas fa-history"></i> Search History</h2>
+                    <div class="section-divider neon-glow"></div>
                 </div>
                 
                 <div class="history-controls">
-                    <button id="clearHistoryBtn" class="control-btn danger glitter-effect">
+                    <button id="clearHistoryBtn" class="control-btn danger neon-glow">
                         <i class="fas fa-trash"></i>
                         Clear All History
                     </button>
-                    <div class="history-filter">
-                        <select id="historyFilter" class="filter-select">
-                            <option value="all">All Time</option>
-                            <option value="today">Today</option>
-                            <option value="week">This Week</option>
-                            <option value="month">This Month</option>
-                        </select>
-                    </div>
                 </div>
 
                 <div class="history-content" id="historyContent">
@@ -415,10 +326,10 @@
         </section>
     </div>
 
-    <!-- Fullscreen Lightbox for image viewing -->
+    <!-- Fullscreen Lightbox -->
     <div class="fullscreen-lightbox" id="fullscreenLightbox">
         <div class="lightbox-overlay"></div>
-        <div class="lightbox-container glitter-border">
+        <div class="lightbox-container neon-border">
             <div class="lightbox-header">
                 <div class="lightbox-nav">
                     <button class="nav-btn-lightbox" id="prevImage">
@@ -439,9 +350,9 @@
             </div>
             
             <div class="lightbox-content">
-                <img id="lightboxImg" alt="" class="glitter-border">
+                <img id="lightboxImg" alt="" class="neon-border">
                 <div class="image-loader" id="imageLoader">
-                    <div class="loader-spinner glitter-effect"></div>
+                    <div class="loader-spinner neon-glow"></div>
                 </div>
             </div>
 
@@ -457,16 +368,16 @@
                 </div>
                 
                 <div class="lightbox-actions">
-                    <button class="action-btn share glitter-effect" id="shareBtn">
+                    <button class="action-btn share neon-glow" id="shareBtn">
                         <i class="fas fa-share-alt"></i> Share
                     </button>
-                    <button class="action-btn secondary glitter-effect" id="downloadBtn">
+                    <button class="action-btn secondary neon-glow" id="downloadBtn">
                         <i class="fas fa-download"></i> Download
                     </button>
-                    <button class="action-btn accent glitter-effect" id="addToPrivateBtn">
+                    <button class="action-btn accent neon-glow" id="addToPrivateBtn">
                         <i class="fas fa-heart"></i> Save Private
                     </button>
-                    <button class="action-btn primary glitter-effect" id="addToAlbumLightboxBtn">
+                    <button class="action-btn primary neon-glow" id="addToAlbumLightboxBtn">
                         <i class="fas fa-folder-plus"></i> Add to Album
                     </button>
                 </div>
@@ -477,7 +388,7 @@
     <!-- Create Album Modal -->
     <div class="modal" id="createAlbumModal">
         <div class="modal-overlay"></div>
-        <div class="modal-content glitter-border">
+        <div class="modal-content neon-border">
             <div class="modal-header">
                 <h3><i class="fas fa-folder-plus"></i> Create New Album</h3>
                 <button class="modal-close" id="closeCreateAlbumModal">
@@ -494,7 +405,7 @@
                     <textarea id="albumDescription" placeholder="Enter album description" maxlength="200"></textarea>
                 </div>
                 <div class="modal-actions">
-                    <button id="createAlbumConfirm" class="action-btn primary glitter-effect">
+                    <button id="createAlbumConfirm" class="action-btn primary neon-glow">
                         <i class="fas fa-plus"></i> Create Album
                     </button>
                     <button id="cancelCreateAlbum" class="action-btn secondary">
@@ -508,7 +419,7 @@
     <!-- Add to Album Modal -->
     <div class="modal" id="addToAlbumModal">
         <div class="modal-overlay"></div>
-        <div class="modal-content glitter-border">
+        <div class="modal-content neon-border">
             <div class="modal-header">
                 <h3><i class="fas fa-folder-plus"></i> Add to Album</h3>
                 <button class="modal-close" id="closeAddToAlbumModal">
@@ -521,7 +432,7 @@
                     <div class="album-list" id="albumList"></div>
                 </div>
                 <div class="modal-actions">
-                    <button id="addToSelectedAlbum" class="action-btn primary glitter-effect">
+                    <button id="addToSelectedAlbum" class="action-btn primary neon-glow">
                         <i class="fas fa-plus"></i> Add to Album
                     </button>
                     <button id="cancelAddToAlbum" class="action-btn secondary">
@@ -535,7 +446,7 @@
     <!-- Share Modal -->
     <div class="share-modal" id="shareModal">
         <div class="modal-overlay"></div>
-        <div class="modal-content glitter-border">
+        <div class="modal-content neon-border">
             <div class="modal-header">
                 <h3><i class="fas fa-share-alt"></i> Share Image</h3>
                 <button class="modal-close" id="closeShareModal">
@@ -544,26 +455,26 @@
             </div>
             <div class="modal-body">
                 <div class="share-options">
-                    <button class="share-btn facebook glitter-effect" data-platform="facebook">
+                    <button class="share-btn facebook neon-glow" data-platform="facebook">
                         <i class="fab fa-facebook-f"></i>
                         Facebook
                     </button>
-                    <button class="share-btn twitter glitter-effect" data-platform="twitter">
+                    <button class="share-btn twitter neon-glow" data-platform="twitter">
                         <i class="fab fa-twitter"></i>
                         Twitter
                     </button>
-                    <button class="share-btn linkedin glitter-effect" data-platform="linkedin">
+                    <button class="share-btn linkedin neon-glow" data-platform="linkedin">
                         <i class="fab fa-linkedin-in"></i>
                         LinkedIn
                     </button>
-                    <button class="share-btn pinterest glitter-effect" data-platform="pinterest">
+                    <button class="share-btn pinterest neon-glow" data-platform="pinterest">
                         <i class="fab fa-pinterest"></i>
                         Pinterest
                     </button>
                 </div>
                 <div class="share-link">
                     <input type="text" id="shareLink" readonly placeholder="Image link will appear here">
-                    <button id="copyLink" class="copy-btn glitter-effect">
+                    <button id="copyLink" class="copy-btn neon-glow">
                         <i class="fas fa-copy"></i>
                         Copy
                     </button>
@@ -572,7 +483,42 @@
         </div>
     </div>
 
-    <!-- JavaScript file inclusion -->
+    <!-- Context Menu -->
+    <aside id="contextMenu" style="display: none;">
+        <span class="shine shine-top"></span>
+        <span class="shine shine-bottom"></span>
+        <span class="glow glow-top"></span>
+        <span class="glow glow-bottom"></span>
+        <span class="glow glow-bright glow-top"></span>
+        <span class="glow glow-bright glow-bottom"></span>
+        
+        <div class="inner">
+            <section>
+                <header>Quick Actions</header>
+                <ul>
+                    <li id="contextHome">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                        </svg>
+                        Home Gallery
+                    </li>
+                    <li id="contextPrivate">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                        Private Gallery
+                    </li>
+                    <li id="contextAlbums">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                        </svg>
+                        Albums
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </aside>
+
     <script src="script.js"></script>
 </body>
 </html>
