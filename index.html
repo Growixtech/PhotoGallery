@@ -3,522 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galleria - Smart Photo Gallery</title>
+    <title>Galleria - Photo Gallery</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Font Awesome for icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="logo neon-glow">
-            <i class="fas fa-camera-retro"></i>
-            <span class="logo-text">Galleria</span>
-        </div>
-        <ul class="nav-links">
-            <li><button class="nav-btn active neon-border" id="homeBtn">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </button></li>
-            <li><button class="nav-btn neon-border" id="aboutBtn">
-                <i class="fas fa-info-circle"></i>
-                <span>About</span>
-            </button></li>
-            <li><button class="nav-btn neon-border" id="privateBtn">
-                <i class="fas fa-lock"></i>
-                <span>Private</span>
-            </button></li>
-            <li><button class="nav-btn neon-border" id="albumsBtn">
-                <i class="fas fa-folder"></i>
-                <span>Albums</span>
-            </button></li>
-            <li><button class="nav-btn neon-border" id="historyBtn">
-                <i class="fas fa-history"></i>
-                <span>History</span>
-            </button></li>
-        </ul>
-    </nav>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="header__content">
+                    <div class="header__brand">
+                        <h1 class="brand-title">Galleria</h1>
+                        <span class="brand-subtitle">Discover Amazing Photos</span>
+                    </div>
+                    
+                    <div class="header__actions">
+                        <button class="btn btn--secondary theme-toggle" id="themeToggle">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div class="api-status" id="apiStatus">
+                            <span class="status status--info">Connecting...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-    <div class="app-container">
-        <!-- Main Gallery Section -->
-        <section id="mainApp">
-            <header class="app-header">
-                <div class="hero-content">
-                    <h1 class="neon-text">Galleria</h1>
-                    <p class="hero-subtitle">Transform your visual experience through stunning photography</p>
-                    <div class="hero-stats">
-                        <div class="stat-item neon-border">
-                            <span class="stat-number" id="totalImages">0</span>
-                            <span class="stat-label">Images Loaded</span>
-                        </div>
-                        <div class="stat-item neon-border">
-                            <span class="stat-number" id="totalSearches">0</span>
-                            <span class="stat-label">Total Searches</span>
-                        </div>
-                        <div class="stat-item neon-border">
-                            <span class="stat-number" id="totalAlbums">0</span>
-                            <span class="stat-label">Albums Created</span>
-                        </div>
-                        <div class="stat-item neon-border">
-                            <span class="stat-number" id="totalDownloads">0</span>
-                            <span class="stat-label">Downloads</span>
-                        </div>
-                    </div>
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="container">
+                <div class="nav__content">
+                    <button class="nav__item nav__item--active" data-section="home">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </button>
+                    <button class="nav__item" data-section="about">
+                        <i class="fas fa-info-circle"></i>
+                        <span>About</span>
+                    </button>
+                    <button class="nav__item" data-section="private">
+                        <i class="fas fa-lock"></i>
+                        <span>Private</span>
+                    </button>
+                    <button class="nav__item" data-section="albums">
+                        <i class="fas fa-images"></i>
+                        <span>Albums</span>
+                    </button>
+                    <button class="nav__item" data-section="history">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </button>
+                    <button class="nav__item" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </button>
                 </div>
-                
-                <!-- Enhanced search container -->
-                <div class="search-container">
-                    <div class="search-wrapper neon-border">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="searchInput" placeholder="Search breathtaking photos..." autocomplete="off">
-                        <button id="searchBtn" class="search-btn neon-glow">
-                            <i class="fas fa-search"></i>
-                            <span class="search-text">Search</span>
-                        </button>
-                        <button id="clearSearch" class="clear-btn neon-glow">
-                            <i class="fas fa-broom"></i>
-                            <span class="clear-text">Clear</span>
-                        </button>
-                    </div>
-                    <div class="search-suggestions" id="searchSuggestions"></div>
-                </div>
-            </header>
-            
-            <main class="gallery-container">
-                <!-- Gallery controls -->
-                <div class="gallery-controls">
-                    <div class="view-options">
-                        <button class="control-btn active neon-border" id="gridView">
-                            <i class="fas fa-th"></i> Grid
-                        </button>
-                        <button class="control-btn neon-border" id="listView">
-                            <i class="fas fa-list"></i> List
-                        </button>
-                    </div>
-                    <div class="sort-options">
-                        <div class="sort-wrapper neon-border">
-                            <button class="sort-btn active" data-sort="relevance">
-                                <i class="fas fa-star"></i>
-                                <span>Most Relevant</span>
-                            </button>
-                            <button class="sort-btn" data-sort="latest">
-                                <i class="fas fa-clock"></i>
-                                <span>Latest</span>
-                            </button>
-                            <button class="sort-btn" data-sort="popular">
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Home Section -->
+            <section class="section section--active" id="home">
+                <div class="container">
+                    <!-- Search Controls -->
+                    <div class="search-section">
+                        <div class="search-bar">
+                            <div class="search-input-wrapper">
+                                <input type="text" class="form-control search-input" id="searchInput" placeholder="Search for photos...">
+                                <button class="search-btn" id="searchBtn">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <button class="voice-search-btn" id="voiceSearchBtn">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Categories -->
+                        <div class="categories">
+                            <button class="category-btn category-btn--active" data-category="popular">
                                 <i class="fas fa-fire"></i>
-                                <span>Most Popular</span>
+                                <span>Popular</span>
                             </button>
+                            <button class="category-btn" data-category="nature">
+                                <i class="fas fa-leaf"></i>
+                                <span>Nature</span>
+                            </button>
+                            <button class="category-btn" data-category="people">
+                                <i class="fas fa-users"></i>
+                                <span>People</span>
+                            </button>
+                            <button class="category-btn" data-category="travel">
+                                <i class="fas fa-map-marked-alt"></i>
+                                <span>Travel</span>
+                            </button>
+                            <button class="category-btn" data-category="food">
+                                <i class="fas fa-utensils"></i>
+                                <span>Food</span>
+                            </button>
+                            <button class="category-btn" data-category="animals">
+                                <i class="fas fa-paw"></i>
+                                <span>Animals</span>
+                            </button>
+                            <button class="category-btn" data-category="architecture">
+                                <i class="fas fa-building"></i>
+                                <span>Architecture</span>
+                            </button>
+                            <button class="category-btn" data-category="technology">
+                                <i class="fas fa-microchip"></i>
+                                <span>Technology</span>
+                            </button>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="gallery-controls">
+                            <div class="view-controls">
+                                <button class="view-btn view-btn--active" data-view="grid">
+                                    <i class="fas fa-th"></i>
+                                </button>
+                                <button class="view-btn" data-view="list">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                                <button class="view-btn" data-view="masonry">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                            </div>
+
+                            <div class="bulk-controls">
+                                <button class="btn btn--secondary" id="selectAllBtn">
+                                    <i class="fas fa-check-square"></i>
+                                    Select All
+                                </button>
+                                <button class="btn btn--primary" id="downloadSelectedBtn" disabled>
+                                    <i class="fas fa-download"></i>
+                                    Download Selected
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div class="loading-state" id="loadingState">
+                        <div class="spinner"></div>
+                        <p>Loading amazing photos...</p>
+                    </div>
+
+                    <!-- Gallery -->
+                    <div class="gallery" id="gallery">
+                        <!-- Images will be loaded here -->
+                    </div>
+
+                    <!-- Load More -->
+                    <div class="load-more-section">
+                        <button class="btn btn--outline btn--full-width" id="loadMoreBtn">
+                            Load More Photos
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section class="section" id="about">
+                <div class="container">
+                    <div class="card">
+                        <div class="card__body">
+                            <h2>About Galleria</h2>
+                            <p>Galleria is a modern photo gallery application that connects to the Unsplash API to bring you stunning, high-quality images from photographers around the world.</p>
+                            
+                            <h3>Features</h3>
+                            <ul>
+                                <li>Browse millions of photos from Unsplash</li>
+                                <li>Search by categories and keywords</li>
+                                <li>Multiple viewing modes</li>
+                                <li>Voice search functionality</li>
+                                <li>Bulk download capabilities</li>
+                                <li>Personal album management</li>
+                                <li>Search history tracking</li>
+                            </ul>
+
+                            <h3>Credits</h3>
+                            <p>All photos are provided by <a href="https://unsplash.com" target="_blank">Unsplash</a>, the internet's source of freely-usable images.</p>
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <!-- Private Section -->
+            <section class="section" id="private">
+                <div class="container">
+                    <div class="private-access" id="privateAccess">
+                        <div class="card">
+                            <div class="card__body">
+                                <h2><i class="fas fa-lock"></i> Private Gallery</h2>
+                                <p>Enter password to access your private gallery:</p>
+                                <div class="form-group">
+                                    <input type="password" class="form-control" id="privatePassword" placeholder="Enter password">
+                                </div>
+                                <button class="btn btn--primary" id="privateSubmit">Access Gallery</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="private-content hidden" id="privateContent">
+                        <h2>Your Private Gallery</h2>
+                        <div class="private-gallery" id="privateGallery">
+                            <p>Your private photos will appear here.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Albums Section -->
+            <section class="section" id="albums">
+                <div class="container">
+                    <div class="albums-header">
+                        <h2>My Albums</h2>
+                        <button class="btn btn--primary" id="createAlbumBtn">
+                            <i class="fas fa-plus"></i>
+                            Create Album
+                        </button>
+                    </div>
+                    <div class="albums-grid" id="albumsGrid">
+                        <!-- Albums will be displayed here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section class="section" id="history">
+                <div class="container">
+                    <div class="history-content">
+                        <h2>Search History & Statistics</h2>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="totalSearches">0</div>
+                                <div class="stat-label">Total Searches</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="totalDownloads">0</div>
+                                <div class="stat-label">Downloads</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="favoriteCategory">Nature</div>
+                                <div class="stat-label">Favorite Category</div>
+                            </div>
+                        </div>
+
+                        <div class="search-history">
+                            <h3>Recent Searches</h3>
+                            <div class="history-list" id="historyList">
+                                <!-- Search history will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="section" id="settings">
+                <div class="container">
+                    <div class="card">
+                        <div class="card__body">
+                            <h2>Settings</h2>
+                            
+                            <div class="settings-section">
+                                <h3>Display</h3>
+                                <div class="form-group">
+                                    <label class="form-label">Images per page</label>
+                                    <select class="form-control" id="imagesPerPage">
+                                        <option value="12">12 images</option>
+                                        <option value="24" selected>24 images</option>
+                                        <option value="36">36 images</option>
+                                        <option value="48">48 images</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Default view mode</label>
+                                    <select class="form-control" id="defaultView">
+                                        <option value="grid" selected>Grid</option>
+                                        <option value="list">List</option>
+                                        <option value="masonry">Masonry</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="settings-section">
+                                <h3>Privacy</h3>
+                                <div class="form-group">
+                                    <label class="form-label">Clear search history</label>
+                                    <button class="btn btn--outline" id="clearHistoryBtn">Clear All History</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Lightbox -->
+        <div class="lightbox" id="lightbox">
+            <div class="lightbox__overlay"></div>
+            <div class="lightbox__content">
+                <button class="lightbox__close" id="lightboxClose">
+                    <i class="fas fa-times"></i>
+                </button>
                 
-                <!-- Main gallery grid -->
-                <div class="adaptive-grid" id="adaptiveGrid"></div>
-                <div class="loading" id="loading">
-                    <div class="loading-spinner neon-glow"></div>
-                    <p>Loading stunning images...</p>
-                </div>
-            </main>
-        </section>
-
-        <!-- About Section -->
-        <section class="content-section about-section" id="aboutSection" style="display:none;">
-            <div class="section-container">
-                <div class="section-header">
-                    <h2 class="neon-text"><i class="fas fa-info-circle"></i> About Galleria</h2>
-                    <div class="section-divider neon-glow"></div>
-                </div>
-                
-                <div class="about-content">
-                    <div class="about-card neon-border">
-                        <div class="card-icon neon-glow">
-                            <i class="fas fa-palette"></i>
-                        </div>
-                        <h3>Project Vision</h3>
-                        <p>Galleria is a cutting-edge photo gallery application that showcases the beauty of photography through modern web technologies and intuitive user experience design.</p>
-                        <div class="feature-tags">
-                            <span class="tag neon-glow">Modern Design</span>
-                            <span class="tag neon-glow">Responsive</span>
-                            <span class="tag neon-glow">Interactive</span>
-                        </div>
-                    </div>
-
-                    <div class="about-card neon-border">
-                        <div class="card-icon neon-glow">
-                            <i class="fas fa-code"></i>
-                        </div>
-                        <h3>Technical Excellence</h3>
-                        <p>Built with pure HTML5, CSS3, and vanilla JavaScript, demonstrating modern web standards with responsive design, advanced animations, and seamless API integration.</p>
-                        <div class="tech-stack">
-                            <span class="tech-item neon-border"><i class="fab fa-html5"></i> HTML5</span>
-                            <span class="tech-item neon-border"><i class="fab fa-css3-alt"></i> CSS3</span>
-                            <span class="tech-item neon-border"><i class="fab fa-js-square"></i> JavaScript</span>
-                        </div>
-                    </div>
-
-                    <div class="about-card neon-border">
-                        <div class="card-icon neon-glow">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <h3>Advanced Features</h3>
-                        <ul class="feature-list">
-                            <li><i class="fas fa-check"></i> Dynamic image loading from Unsplash API</li>
-                            <li><i class="fas fa-check"></i> Advanced search with real-time filtering</li>
-                            <li><i class="fas fa-check"></i> Custom albums and collections</li>
-                            <li><i class="fas fa-check"></i> Private gallery with authentication</li>
-                            <li><i class="fas fa-check"></i> Fullscreen viewer with navigation</li>
-                            <li><i class="fas fa-check"></i> Social media sharing integration</li>
-                            <li><i class="fas fa-check"></i> Search history tracking</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Private Gallery Section -->
-        <section class="content-section private-section" id="privateSection" style="display:none;">
-            <div class="section-container">
-                <div class="section-header">
-                    <h2 class="neon-text"><i class="fas fa-shield-alt"></i> Private Gallery</h2>
-                    <div class="section-divider neon-glow"></div>
-                </div>
-
-                <div id="privateAuth" class="auth-container">
-                    <div class="auth-card neon-border">
-                        <div class="auth-header">
-                            <div class="auth-icon neon-glow">
-                                <i class="fas fa-user-shield"></i>
-                            </div>
-                            <h3>Secure Access Required</h3>
-                            <p>Create your private gallery or login to access your saved images</p>
-                        </div>
-                        <div class="auth-form">
-                            <div class="input-group">
-                                <i class="fas fa-user"></i>
-                                <input type="text" id="privateUserId" placeholder="Enter username" maxlength="20">
-                            </div>
-                            <div class="input-group">
-                                <i class="fas fa-key"></i>
-                                <input type="password" id="privatePasscode" placeholder="4-digit passcode" maxlength="4" pattern="\d{4}">
-                            </div>
-                            <button id="privateLoginBtn" class="auth-btn neon-glow">
-                                <span>Access Private Gallery</span>
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                            <div id="privateAuthMsg" class="auth-message"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="privateGallery" style="display:none;">
-                    <div class="private-header">
-                        <div class="user-info">
-                            <div class="user-avatar neon-glow">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="user-details">
-                                <h3 id="userName">Welcome Back!</h3>
-                                <p id="userStats">Your Private Collection</p>
-                            </div>
-                        </div>
-                        <div class="private-actions">
-                            <button id="addImageBtn" class="action-btn primary neon-glow">
-                                <i class="fas fa-plus"></i>
-                                Add Images
-                            </button>
-                            <button id="logoutBtn" class="action-btn danger">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="private-search-container" id="privateSearchContainer" style="display:none;">
-                        <div class="search-wrapper neon-border">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="privateSearchInput" placeholder="Search images to add...">
-                            <button id="cancelPrivateSearch" class="cancel-btn">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div class="search-results" id="privateSearchResults"></div>
-                    </div>
-
-                    <div class="private-stats">
-                        <div class="stat-card neon-border">
-                            <i class="fas fa-images"></i>
-                            <div class="stat-content">
-                                <span id="privateImageCount">0</span>
-                                <label>Saved Images</label>
-                            </div>
-                        </div>
-                        <div class="stat-card neon-border">
-                            <i class="fas fa-calendar"></i>
-                            <div class="stat-content">
-                                <span id="lastActivity">Never</span>
-                                <label>Last Activity</label>
-                            </div>
-                        </div>
-                        <div class="stat-card neon-border">
-                            <i class="fas fa-download"></i>
-                            <div class="stat-content">
-                                <span id="totalPrivateDownloads">0</span>
-                                <label>Downloads</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="adaptive-grid" id="privateGrid"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Albums Section -->
-        <section class="content-section albums-section" id="albumsSection" style="display:none;">
-            <div class="section-container">
-                <div class="section-header">
-                    <h2 class="neon-text"><i class="fas fa-folder"></i> Photo Albums</h2>
-                    <div class="section-divider neon-glow"></div>
-                </div>
-
-                <div class="album-controls">
-                    <button id="createAlbumBtn" class="control-btn primary neon-glow">
-                        <i class="fas fa-plus"></i> Create New Album
-                    </button>
-                </div>
-
-                <div class="albums-grid" id="albumsGrid">
-                    <div class="empty-albums">
-                        <i class="fas fa-folder-plus neon-glow"></i>
-                        <h3>No Albums Yet</h3>
-                        <p>Create your first album to organize your photos</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- History Section -->
-        <section class="content-section history-section" id="historySection" style="display:none;">
-            <div class="section-container">
-                <div class="section-header">
-                    <h2 class="neon-text"><i class="fas fa-history"></i> Search History</h2>
-                    <div class="section-divider neon-glow"></div>
-                </div>
-                
-                <div class="history-controls">
-                    <button id="clearHistoryBtn" class="control-btn danger neon-glow">
-                        <i class="fas fa-trash"></i>
-                        Clear All History
-                    </button>
-                </div>
-
-                <div class="history-content" id="historyContent">
-                    <div class="empty-history">
-                        <i class="fas fa-search"></i>
-                        <h3>No Search History</h3>
-                        <p>Your search history will appear here</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <!-- Fullscreen Lightbox -->
-    <div class="fullscreen-lightbox" id="fullscreenLightbox">
-        <div class="lightbox-overlay"></div>
-        <div class="lightbox-container neon-border">
-            <div class="lightbox-header">
-                <div class="lightbox-nav">
-                    <button class="nav-btn-lightbox" id="prevImage">
+                <div class="lightbox__image-container">
+                    <img class="lightbox__image" id="lightboxImage" alt="">
+                    <button class="lightbox__nav lightbox__nav--prev" id="lightboxPrev">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <button class="nav-btn-lightbox" id="nextImage">
+                    <button class="lightbox__nav lightbox__nav--next" id="lightboxNext">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
-                <div class="lightbox-actions-header">
-                    <button class="lightbox-btn" id="toggleFullscreen">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                    <button class="lightbox-btn" id="closeLightbox">
+                
+                <div class="lightbox__info">
+                    <div class="lightbox__details">
+                        <h3 class="lightbox__title" id="lightboxTitle"></h3>
+                        <p class="lightbox__description" id="lightboxDescription"></p>
+                        <div class="lightbox__metadata">
+                            <span class="lightbox__author" id="lightboxAuthor"></span>
+                            <span class="lightbox__dimensions" id="lightboxDimensions"></span>
+                        </div>
+                    </div>
+                    <div class="lightbox__actions">
+                        <button class="btn btn--secondary" id="lightboxAddToAlbum">
+                            <i class="fas fa-plus"></i>
+                            Add to Album
+                        </button>
+                        <button class="btn btn--primary" id="lightboxDownload">
+                            <i class="fas fa-download"></i>
+                            Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Album Modal -->
+        <div class="modal" id="albumModal">
+            <div class="modal__overlay"></div>
+            <div class="modal__content">
+                <div class="modal__header">
+                    <h3>Create New Album</h3>
+                    <button class="modal__close" id="albumModalClose">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-            </div>
-            
-            <div class="lightbox-content">
-                <img id="lightboxImg" alt="" class="neon-border">
-                <div class="image-loader" id="imageLoader">
-                    <div class="loader-spinner neon-glow"></div>
-                </div>
-            </div>
-
-            <div class="lightbox-footer">
-                <div class="image-info">
-                    <h3 id="imageTitle">Beautiful Image</h3>
-                    <p id="imageAuthor">by Photographer</p>
-                    <div class="image-meta">
-                        <span id="imageLikes"><i class="fas fa-heart"></i> 0</span>
-                        <span id="imageViews"><i class="fas fa-eye"></i> 0</span>
-                        <span id="imageDate"><i class="fas fa-calendar"></i> Date</span>
+                <div class="modal__body">
+                    <div class="form-group">
+                        <label class="form-label">Album Name</label>
+                        <input type="text" class="form-control" id="albumNameInput" placeholder="Enter album name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="albumDescriptionInput" placeholder="Optional description"></textarea>
                     </div>
                 </div>
-                
-                <div class="lightbox-actions">
-                    <button class="action-btn share neon-glow" id="shareBtn">
-                        <i class="fas fa-share-alt"></i> Share
-                    </button>
-                    <button class="action-btn secondary neon-glow" id="downloadBtn">
-                        <i class="fas fa-download"></i> Download
-                    </button>
-                    <button class="action-btn accent neon-glow" id="addToPrivateBtn">
-                        <i class="fas fa-heart"></i> Save Private
-                    </button>
-                    <button class="action-btn primary neon-glow" id="addToAlbumLightboxBtn">
-                        <i class="fas fa-folder-plus"></i> Add to Album
-                    </button>
+                <div class="modal__footer">
+                    <button class="btn btn--secondary" id="albumCancel">Cancel</button>
+                    <button class="btn btn--primary" id="albumCreate">Create Album</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Create Album Modal -->
-    <div class="modal" id="createAlbumModal">
-        <div class="modal-overlay"></div>
-        <div class="modal-content neon-border">
-            <div class="modal-header">
-                <h3><i class="fas fa-folder-plus"></i> Create New Album</h3>
-                <button class="modal-close" id="closeCreateAlbumModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="input-group">
-                    <label for="albumName">Album Name</label>
-                    <input type="text" id="albumName" placeholder="Enter album name" maxlength="50">
-                </div>
-                <div class="input-group">
-                    <label for="albumDescription">Description (Optional)</label>
-                    <textarea id="albumDescription" placeholder="Enter album description" maxlength="200"></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button id="createAlbumConfirm" class="action-btn primary neon-glow">
-                        <i class="fas fa-plus"></i> Create Album
-                    </button>
-                    <button id="cancelCreateAlbum" class="action-btn secondary">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add to Album Modal -->
-    <div class="modal" id="addToAlbumModal">
-        <div class="modal-overlay"></div>
-        <div class="modal-content neon-border">
-            <div class="modal-header">
-                <h3><i class="fas fa-folder-plus"></i> Add to Album</h3>
-                <button class="modal-close" id="closeAddToAlbumModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="album-selection" id="albumSelection">
-                    <p>Select an album to add this photo:</p>
-                    <div class="album-list" id="albumList"></div>
-                </div>
-                <div class="modal-actions">
-                    <button id="addToSelectedAlbum" class="action-btn primary neon-glow">
-                        <i class="fas fa-plus"></i> Add to Album
-                    </button>
-                    <button id="cancelAddToAlbum" class="action-btn secondary">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Share Modal -->
-    <div class="share-modal" id="shareModal">
-        <div class="modal-overlay"></div>
-        <div class="modal-content neon-border">
-            <div class="modal-header">
-                <h3><i class="fas fa-share-alt"></i> Share Image</h3>
-                <button class="modal-close" id="closeShareModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="share-options">
-                    <button class="share-btn facebook neon-glow" data-platform="facebook">
-                        <i class="fab fa-facebook-f"></i>
-                        Facebook
-                    </button>
-                    <button class="share-btn twitter neon-glow" data-platform="twitter">
-                        <i class="fab fa-twitter"></i>
-                        Twitter
-                    </button>
-                    <button class="share-btn linkedin neon-glow" data-platform="linkedin">
-                        <i class="fab fa-linkedin-in"></i>
-                        LinkedIn
-                    </button>
-                    <button class="share-btn pinterest neon-glow" data-platform="pinterest">
-                        <i class="fab fa-pinterest"></i>
-                        Pinterest
-                    </button>
-                </div>
-                <div class="share-link">
-                    <input type="text" id="shareLink" readonly placeholder="Image link will appear here">
-                    <button id="copyLink" class="copy-btn neon-glow">
-                        <i class="fas fa-copy"></i>
-                        Copy
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Context Menu -->
-    <aside id="contextMenu" style="display: none;">
-        <span class="shine shine-top"></span>
-        <span class="shine shine-bottom"></span>
-        <span class="glow glow-top"></span>
-        <span class="glow glow-bottom"></span>
-        <span class="glow glow-bright glow-top"></span>
-        <span class="glow glow-bright glow-bottom"></span>
-        
-        <div class="inner">
-            <section>
-                <header>Quick Actions</header>
-                <ul>
-                    <li id="contextHome">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                        </svg>
-                        Home Gallery
-                    </li>
-                    <li id="contextPrivate">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-                        </svg>
-                        Private Gallery
-                    </li>
-                    <li id="contextAlbums">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
-                        </svg>
-                        Albums
-                    </li>
-                </ul>
-            </section>
-        </div>
-    </aside>
-
-    <script src="script.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
