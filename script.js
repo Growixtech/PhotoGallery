@@ -131,13 +131,13 @@ class Galleria {
         
         try {
             statusElement.innerHTML = '<span class="status status--info">Connecting...</span>';
-            const response = await fetch(`${this.baseURL}/photos?client_id=${this.apiKey}&per_page=1`);
+            const response = await fetch(${this.baseURL}/photos?client_id=${this.apiKey}&per_page=1);
             
             if (response.ok) {
                 statusElement.innerHTML = '<span class="status status--success">Connected</span>';
                 console.log('API connection successful');
             } else {
-                throw new Error(`API responded with status: ${response.status}`);
+                throw new Error(API responded with status: ${response.status});
             }
         } catch (error) {
             console.error('API connection error:', error);
@@ -163,29 +163,29 @@ class Galleria {
     async fetchImages(category, query = '', page = 1) {
         try {
             this.isLoading = true;
-            console.log(`Fetching images - Category: ${category}, Query: ${query}, Page: ${page}`);
+            console.log(Fetching images - Category: ${category}, Query: ${query}, Page: ${page});
             
             let url;
             if (query) {
-                url = `${this.baseURL}/search/photos?client_id=${this.apiKey}&query=${encodeURIComponent(query)}&page=${page}&per_page=24`;
+                url = ${this.baseURL}/search/photos?client_id=${this.apiKey}&query=${encodeURIComponent(query)}&page=${page}&per_page=24;
             } else if (category === 'popular') {
-                url = `${this.baseURL}/photos?client_id=${this.apiKey}&page=${page}&per_page=24&order_by=popular`;
+                url = ${this.baseURL}/photos?client_id=${this.apiKey}&page=${page}&per_page=24&order_by=popular;
             } else {
-                url = `${this.baseURL}/search/photos?client_id=${this.apiKey}&query=${encodeURIComponent(category)}&page=${page}&per_page=24`;
+                url = ${this.baseURL}/search/photos?client_id=${this.apiKey}&query=${encodeURIComponent(category)}&page=${page}&per_page=24;
             }
 
             console.log('Fetching from URL:', url);
             const response = await fetch(url);
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+                throw new Error(HTTP error! status: ${response.status} - ${response.statusText});
             }
             
             const data = await response.json();
             console.log('API Response:', data);
             
             const images = query || category !== 'popular' ? (data.results || []) : data;
-            console.log(`Received ${images.length} images`);
+            console.log(Received ${images.length} images);
             
             if (page === 1) {
                 this.allImages = images;
@@ -199,7 +199,7 @@ class Galleria {
             return images;
         } catch (error) {
             console.error('Error fetching images:', error);
-            this.showError(`Failed to load images: ${error.message}`);
+            this.showError(Failed to load images: ${error.message});
             this.isLoading = false;
             
             // Show fallback message
@@ -229,7 +229,7 @@ class Galleria {
         const gallery = document.getElementById('gallery');
         if (!gallery) return;
         
-        gallery.className = `gallery gallery--${this.currentView}`;
+        gallery.className = gallery gallery--${this.currentView};
         
         if (!this.allImages || this.allImages.length === 0) {
             gallery.innerHTML = `
@@ -242,7 +242,7 @@ class Galleria {
             return;
         }
 
-        console.log(`Rendering ${this.allImages.length} images in ${this.currentView} view`);
+        console.log(Rendering ${this.allImages.length} images in ${this.currentView} view);
         gallery.innerHTML = this.allImages.map((image, index) => this.createImageHTML(image, index)).join('');
         
         // Bind image events
@@ -256,7 +256,7 @@ class Galleria {
         }
         
         const isListView = this.currentView === 'list';
-        const imageClass = `gallery-item${isListView ? ' gallery-item--list' : ''}`;
+        const imageClass = gallery-item${isListView ? ' gallery-item--list' : ''};
         const imageUrl = image.urls.small || image.urls.regular || image.urls.thumb;
         const fullImageUrl = image.urls.regular || image.urls.full || imageUrl;
         
@@ -332,8 +332,8 @@ class Galleria {
         if (lightboxImage) lightboxImage.alt = image.alt_description || image.description || 'Unsplash photo';
         if (lightboxTitle) lightboxTitle.textContent = image.alt_description || image.description || 'Untitled';
         if (lightboxDescription) lightboxDescription.textContent = image.description || '';
-        if (lightboxAuthor) lightboxAuthor.textContent = `Photo by ${image.user?.name || 'Unknown'}`;
-        if (lightboxDimensions) lightboxDimensions.textContent = `${image.width || '?'} × ${image.height || '?'}`;
+        if (lightboxAuthor) lightboxAuthor.textContent = Photo by ${image.user?.name || 'Unknown'};
+        if (lightboxDimensions) lightboxDimensions.textContent = ${image.width || '?'} × ${image.height || '?'};
 
         if (lightbox) {
             lightbox.classList.add('lightbox--active');
@@ -516,7 +516,7 @@ class Galleria {
 
         if (downloadBtn) {
             downloadBtn.disabled = this.selectedImages.size === 0;
-            downloadBtn.innerHTML = `<i class="fas fa-download"></i> Download Selected (${this.selectedImages.size})`;
+            downloadBtn.innerHTML = <i class="fas fa-download"></i> Download Selected (${this.selectedImages.size});
         }
     }
 
@@ -540,7 +540,7 @@ class Galleria {
 
         try {
             await Promise.all(downloads);
-            this.showSuccess(`Downloaded ${this.selectedImages.size} images successfully!`);
+            this.showSuccess(Downloaded ${this.selectedImages.size} images successfully!);
             this.updateUserStats('downloads', this.selectedImages.size);
         } catch (error) {
             this.showError('Some downloads failed. Please try again.');
@@ -554,7 +554,7 @@ class Galleria {
 
             // Track download with Unsplash API
             try {
-                await fetch(`${this.baseURL}/photos/${imageId}/download?client_id=${this.apiKey}`);
+                await fetch(${this.baseURL}/photos/${imageId}/download?client_id=${this.apiKey});
             } catch (e) {
                 console.warn('Failed to track download with Unsplash API');
             }
@@ -562,7 +562,7 @@ class Galleria {
             // Create download link
             const link = document.createElement('a');
             link.href = image.urls.full || image.urls.regular;
-            link.download = `unsplash-${imageId}.jpg`;
+            link.download = unsplash-${imageId}.jpg;
             link.target = '_blank';
             document.body.appendChild(link);
             link.click();
@@ -853,7 +853,7 @@ class Galleria {
     showNotification(message, type = 'info') {
         // Create notification element
         const notification = document.createElement('div');
-        notification.className = `notification notification--${type}`;
+        notification.className = notification notification--${type};
         notification.innerHTML = `
             <span>${message}</span>
             <button class="notification__close">&times;</button>
@@ -908,7 +908,7 @@ class Galleria {
         try {
             localStorage.setItem(key, JSON.stringify(value));
         } catch (error) {
-            console.warn(`Could not save ${key} to storage`);
+            console.warn(Could not save ${key} to storage);
         }
     }
 
@@ -917,7 +917,7 @@ class Galleria {
             const item = localStorage.getItem(key);
             return item ? JSON.parse(item) : defaultValue;
         } catch (error) {
-            console.warn(`Could not load ${key} from storage`);
+            console.warn(Could not load ${key} from storage);
             return defaultValue;
         }
     }
